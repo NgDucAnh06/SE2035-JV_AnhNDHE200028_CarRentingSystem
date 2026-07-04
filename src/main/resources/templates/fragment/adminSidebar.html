@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<nav th:fragment="adminSidebar">
+    <ul>
+        <li><a href="/admin/customers">Manage Customer Information</a></li>
+        <li><a href="/admin/cars">Manage Car Information</a></li>
+        <li><a href="/admin/rentals">Manage Rental Management</a></li>
+        <li><a href="/admin/reports">Transaction Report</a></li>
+    </ul>
+</nav>
+
+</body>
+</html>

@@ -4,4 +4,5 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
+    public Account findAccountByAccountNameAndPassword(String accountName, String password);
 }

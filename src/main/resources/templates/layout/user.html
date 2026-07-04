@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">FUCarRenting</title>
+</head>
+<body>
+    <div th:replace="~{fragment/header :: header}"></div>
+
+    <div style="display: flex;">
+        <div th:replace="~{fragment/userSidebar :: userSidebar}"></div>
+
+        <main layout:fragment="content" style="flex: 1;">
+            <p>Default content</p>
+        </main>
+    </div>
+
+    <div th:replace="~{fragment/footer :: footer}"></div>
+</body>
+</html>

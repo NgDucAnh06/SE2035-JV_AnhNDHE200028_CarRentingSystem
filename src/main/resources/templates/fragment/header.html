@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<header th:fragment="header">
+    <a href="/">
+        <span>
+            FUCarRenting</span>
+        </span>
+    </a>
+
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <a href="/sign-in">
+            Sign in
+        </a>
+        <a href="/sign-up">
+            Sign up
+        </a>
+    </div>
+</header>
+
+</body>
+</html>
