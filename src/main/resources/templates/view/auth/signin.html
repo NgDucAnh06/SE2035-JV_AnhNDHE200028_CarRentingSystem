@@ -7,22 +7,34 @@
     <title>Sign in</title>
 </head>
 <body>
-<form action="" method="post">
+<div>
+    <form th:action="@{/auth/signin}" th:object="${account}" method="post">
 
-    <h3>Sign in</h3>
+        <div th:if="${#fields.hasGlobalErrors()}">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+        </div>
 
-    <div>
-        <span>Username</span>
-        <input type="text" name="username">
-    </div>
-    <br>
-    <div>
-        <span>Password</span>
-        <input type="password" name="password">
-    </div>
+        <h3>Sign in</h3>
 
-    <input type="submit" value="Sign in">
+        <div>
+            <div th:if="${#fields.hasErrors('accountName')}" th:errors="*{accountName}"></div>
+            <label>Username</label>
+            <input type="text" th:field="*{accountName}" placeholder="Enter account name" required>
+        </div>
+        <br>
+        <div>
+            <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            <label>Password</label>
+            <input type="password" th:field="*{password}" placeholder="Enter password" required>
+        </div>
 
-</form>
+        <button type="submit">Sign in</button>
+
+        <p>
+            Don't have an account? <a th:href="@{/auth/signup}">Register</a>
+        </p>
+
+    </form>
+</div>
 </body>
 </html>
