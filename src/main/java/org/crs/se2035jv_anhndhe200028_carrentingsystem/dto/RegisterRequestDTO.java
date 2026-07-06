@@ -24,7 +24,7 @@ public class RegisterRequestDTO {
     private String mobile;
 
     @NotNull(message = "Birthday is required!")
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Past(message = "Date of birth must be in the past!")
     private LocalDate birthday;
 
@@ -35,7 +35,7 @@ public class RegisterRequestDTO {
     private String licenceNum;
 
     @NotNull(message = "Licence date is required!")
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Future(message = "Date of licence must be in the future!")
     private LocalDate licenceDate;
 
