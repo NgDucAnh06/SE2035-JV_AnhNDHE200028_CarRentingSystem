@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuthController {
     private final UserService userService;
 
+    //signin
     @GetMapping("/signin")
     public String showSignin(Model model) {
         model.addAttribute("account", new LoginRequestDTO());
@@ -40,11 +42,15 @@ public class AuthController {
             bindingResult.reject("loginFailed", "Wrong account name or password!");
             return "auth/signin";
         }
+
+        if (account.getCustomer() != null) {
+            session.setAttribute("customer", account.getCustomer());
+        }
         session.setAttribute("account", account);
         return "redirect:/home";
     }
 
-
+    //signup
     @GetMapping("/signup")
     public String showSignup(Model model) {
         model.addAttribute("registerDTO", new RegisterRequestDTO());

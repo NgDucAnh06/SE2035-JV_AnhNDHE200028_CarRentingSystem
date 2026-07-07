@@ -29,4 +29,7 @@ public class Account {
 
     @Column(name = "Role", nullable = false)
     private String role;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Customer customer;
 }

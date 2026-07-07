@@ -4,7 +4,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
-    <title>Sign up</title>
+    <title>Update profile</title>
     <style>
         .text-danger {
             color: red;
@@ -14,66 +14,66 @@
 </head>
 <body>
 <div>
-    <form th:action="@{/auth/signup}" th:object="${registerDTO}" method="post">
+    <form th:action="@{/account/updateProfile}" th:object="${registerDTO}" method="post">
 
         <div th:if="${#fields.hasGlobalErrors()}">
             <p th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="text-danger"></p>
         </div>
 
-        <h3>Sign up</h3>
+        <h3>Update profile</h3>
 
+        <div>
+            <div th:if="${#fields.hasErrors('accountName')}" th:errors="*{accountName}" class="text-danger"></div>
+            <span>Account Name</span>
+            <input type="text" th:field="*{accountName}" readonly>
+        </div>
+        <br>
         <div>
             <div th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></div>
             <span>Fullname</span>
-            <input type="text" th:field="*{fullName}" required>
+            <input type="text" th:field="*{fullName}">
         </div>
         <br>
         <div>
             <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></div>
             <span>Email</span>
-            <input type="text" th:field="*{email}" required>
+            <input type="text" th:field="*{email}">
         </div>
         <br>
         <div>
             <div th:if="${#fields.hasErrors('mobile')}" th:errors="*{mobile}" class="text-danger"></div>
             <span>Mobile</span>
-            <input type="text" th:field="*{mobile}" required>
+            <input type="text" th:field="*{mobile}">
         </div>
         <br>
         <div>
             <div th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}" class="text-danger"></div>
             <span>Birthday</span>
-            <input type="date" th:field="*{birthday}" required>
+            <input type="date" th:field="*{birthday}">
         </div>
         <br>
         <div>
             <div th:if="${#fields.hasErrors('identityCard')}" th:errors="*{identityCard}" class="text-danger"></div>
             <span>Identity Card</span>
-            <input type="text" th:field="*{identityCard}" required>
+            <input type="text" th:field="*{identityCard}">
         </div>
         <br>
         <div>
             <div th:if="${#fields.hasErrors('licenceNum')}" th:errors="*{licenceNum}" class="text-danger"></div>
             <span>Licence Number</span>
-            <input type="text" th:field="*{licenceNum}" required>
+            <input type="text" th:field="*{licenceNum}">
         </div>
         <br>
         <div>
             <div th:if="${#fields.hasErrors('licenceDate')}" th:errors="*{licenceDate}" class="text-danger"></div>
             <span>Licence Date</span>
-            <input type="date" th:field="*{licenceDate}" required>
-        </div>
-        <br>
-        <div>
-            <div th:if="${#fields.hasErrors('accountName')}" th:errors="*{accountName}" class="text-danger"></div>
-            <span>Account Name</span>
-            <input type="text" th:field="*{accountName}" required>
+            <input type="date" th:field="*{licenceDate}">
         </div>
         <br>
         <div>
             <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></div>
             <span>Password</span>
-            <input type="password" th:field="*{password}" required>
+            <input type="password" th:field="*{password}">
         </div>
         <br>
 
