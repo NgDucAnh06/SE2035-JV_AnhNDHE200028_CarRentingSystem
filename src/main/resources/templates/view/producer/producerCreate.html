@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Car Producer</title>
+</head>
+<body>
+<h2>Create New Car Producer</h2>
+
+<div th:if="${param.success}">
+    <p style="color: green; font-weight: bold;">Car producer has been saved successfully!</p>
+</div>
+
+<form th:action="@{/producer/create}" th:object="${carProducer}" method="post">
+    <div style="margin-bottom: 10px;">
+        <label for="producerName">Producer Name:</label><br/>
+        <input type="text" id="producerName" th:field="*{producerName}" required/>
+        <p th:if="${#fields.hasErrors('producerName')}" th:errors="*{producerName}" style="color: red; font-size: 0.9em; margin-top: 5px;"></p>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <label for="address">Address:</label><br/>
+        <input type="text" id="address" th:field="*{address}" required/>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <label for="country">Country:</label><br/>
+        <input type="text" id="country" th:field="*{country}" required/>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <button type="submit">Save Producer</button>
+    </div>
+</form>
+</body>
+</html>

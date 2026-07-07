@@ -9,6 +9,6 @@ import org.springframework.validation.BindingResult;
 
 public interface UserService {
     Account signin(LoginRequestDTO loginRequestDTO);
-    void signup(RegisterRequestDTO registerRequestDTO, BindingResult bindingResult);
-    void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, BindingResult bindingResult, HttpSession session);
+    void signup(RegisterRequestDTO registerRequestDTO);
+    void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, HttpSession session);
 }

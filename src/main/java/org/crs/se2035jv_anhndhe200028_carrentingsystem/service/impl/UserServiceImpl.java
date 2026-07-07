@@ -7,6 +7,8 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidationException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.AccountRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CustomerRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
@@ -25,33 +27,38 @@ public class UserServiceImpl implements UserService {
     @Override
     public Account signin(LoginRequestDTO loginRequestDTO) {
         Account account = accountRepository.findAccountByAccountNameAndPassword(loginRequestDTO.getAccountName(), loginRequestDTO.getPassword());
+        if (account == null) {
+            throw new BadCredentialsException("Wrong account name or password!");
+        }
         return account;
     }
 
     @Override
-    public void signup(RegisterRequestDTO registerRequestDTO, BindingResult bindingResult) {
+    public void signup(RegisterRequestDTO registerRequestDTO) {
+        java.util.Map<String, String> errors = new java.util.HashMap<>();
+
         if (accountRepository.findAccountByEmail(registerRequestDTO.getEmail()) != null) {
-            bindingResult.rejectValue("email", "error.email", "Email already exists!");
+            errors.put("email", "Email already exists!");
         }
 
         if (accountRepository.findByAccountName(registerRequestDTO.getAccountName()) != null) {
-            bindingResult.rejectValue("accountName", "error.accountName", "Account name already exists!");
+            errors.put("accountName", "Account name already exists!");
         }
 
         if (customerRepository.findCustomerByMobile(registerRequestDTO.getMobile()) != null) {
-            bindingResult.rejectValue("mobile", "error.mobile", "Mobile already exists!");
+            errors.put("mobile", "Mobile already exists!");
         }
 
         if (customerRepository.findCustomerByIdentityCard(registerRequestDTO.getIdentityCard()) != null) {
-            bindingResult.rejectValue("identityCard", "error.identityCard", "Identity card already exists!");
+            errors.put("identityCard", "Identity card already exists!");
         }
 
         if (customerRepository.findCustomerByLicenceNumber(registerRequestDTO.getLicenceNum()) != null) {
-            bindingResult.rejectValue("licenceNum", "error.licenceNum", "Licence number already exists!");
+            errors.put("licenceNum", "Licence number already exists!");
         }
 
-        if (bindingResult.hasErrors()) {
-            return;
+        if (!errors.isEmpty()) {
+            throw new CustomValidationException(errors);
         }
 
         Account account = new Account();
@@ -74,33 +81,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, BindingResult bindingResult, HttpSession session) {
+    public void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, HttpSession session) {
         Account sessionAccount = (Account) session.getAttribute("account");
         long accountId = sessionAccount.getAccountID();
         long customerId = sessionAccount.getCustomer().getCustomerID();
 
+        java.util.Map<String, String> errors = new java.util.HashMap<>();
+
         Account checkAccount = accountRepository.findAccountByEmail(updateProfileRequestDTO.getEmail());
         if (checkAccount != null && checkAccount.getAccountID() != accountId) {
-            bindingResult.rejectValue("email", "error.email", "Email already exists!");
+            errors.put("email", "Email already exists!");
         }
 
         Customer checkCustomer = customerRepository.findCustomerByMobile(updateProfileRequestDTO.getMobile());
         if (checkCustomer != null && checkCustomer.getCustomerID() != customerId) {
-            bindingResult.rejectValue("mobile", "error.mobile", "Mobile already exists!");
+            errors.put("mobile", "Mobile already exists!");
         }
 
         checkCustomer = customerRepository.findCustomerByIdentityCard(updateProfileRequestDTO.getIdentityCard());
         if (checkCustomer != null && checkCustomer.getCustomerID() != customerId) {
-            bindingResult.rejectValue("identityCard", "error.identityCard", "Identity card already exists!");
+            errors.put("identityCard", "Identity card already exists!");
         }
 
         checkCustomer = customerRepository.findCustomerByLicenceNumber(updateProfileRequestDTO.getLicenceNum());
         if (checkCustomer != null && checkCustomer.getCustomerID() != customerId) {
-            bindingResult.rejectValue("licenceNum", "error.licenceNum", "Licence number already exists!");
+            errors.put("licenceNum", "Licence number already exists!");
         }
 
-        if (bindingResult.hasErrors()) {
-            return;
+        if (!errors.isEmpty()) {
+            throw new CustomValidationException(errors);
         }
 
         Account account = accountRepository.findById(accountId).orElse(sessionAccount);

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidationException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.AccountRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CustomerRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
@@ -51,12 +52,12 @@ public class AccountController {
             return "account/updateProfile";
         }
 
-        userService.updateProfile(updateProfileDTO, bindingResult, session);
-
-        if (bindingResult.hasErrors()) {
+        try {
+            userService.updateProfile(updateProfileDTO, session);
+            return "redirect:/home"; 
+        } catch (CustomValidationException ex) {
+            ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
             return "account/updateProfile";
-        }
-
-        return "redirect:/home"; 
+        } 
     }
 }

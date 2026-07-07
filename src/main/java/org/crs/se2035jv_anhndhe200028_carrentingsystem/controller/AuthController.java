@@ -7,6 +7,8 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidationException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,17 +39,17 @@ public class AuthController {
             return "auth/signin";
         }
 
-        Account account = userService.signin(loginRequestDTO);
-        if (account == null) {
-            bindingResult.reject("loginFailed", "Wrong account name or password!");
+        try {
+            Account account = userService.signin(loginRequestDTO);
+            if (account.getCustomer() != null) {
+                session.setAttribute("customer", account.getCustomer());
+            }
+            session.setAttribute("account", account);
+            return "redirect:/home";
+        } catch (BadCredentialsException ex) {
+            bindingResult.reject("loginFailed", ex.getMessage());
             return "auth/signin";
         }
-
-        if (account.getCustomer() != null) {
-            session.setAttribute("customer", account.getCustomer());
-        }
-        session.setAttribute("account", account);
-        return "redirect:/home";
     }
 
     //signup
@@ -64,12 +66,12 @@ public class AuthController {
             return "auth/signup";
         }
 
-        userService.signup(registerRequestDTO, bindingResult);
-
-        if (bindingResult.hasErrors()) {
+        try {
+            userService.signup(registerRequestDTO);
+            return "redirect:/auth/signin";
+        } catch (CustomValidationException ex) {
+            ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
             return "auth/signup";
         }
-
-        return "redirect:/auth/signin";
     }
 }
