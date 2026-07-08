@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -130,4 +132,25 @@ public class UserServiceImpl implements UserService {
         session.setAttribute("account", account);
         session.setAttribute("customer", account.getCustomer());
     }
+
+    @Override
+    public List<Account> getAllAccount() {
+        return accountRepository.findAll();
+    }
+
+    @Override
+    public List<Account> getAccountsByRole(String role) {
+        return accountRepository.findByRole(role);
+    }
+
+    @Override
+    public Account getAccountById(Long id) {
+        return accountRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void delete(Long id) {
+        accountRepository.deleteById(id);
+    }
+
 }

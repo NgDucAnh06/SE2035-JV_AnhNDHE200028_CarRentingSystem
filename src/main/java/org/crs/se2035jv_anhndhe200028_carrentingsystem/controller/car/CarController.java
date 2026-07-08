@@ -1,4 +1,4 @@
-package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller;
+package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller.car;
 
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;

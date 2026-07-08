@@ -1,4 +1,4 @@
-package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller;
+package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller.auth;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequestDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidationException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;

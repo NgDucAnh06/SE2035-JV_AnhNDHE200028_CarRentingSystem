@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Customer List</title>
+</head>
+<body>
+<div th:if="${param.message}">
+    <p style="color: green; font-weight: bold;" th:text="${param.message}"></p>
+</div>
+<div>
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Full Name</th>
+            <th scope="col">Mobile</th>
+            <th scope="col">Email</th>
+            <th scope="col">Username</th>
+            <th scope="col">Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="account, stat: ${accounts}">
+            <td th:text="${stat.count}"></td>
+            <td th:text="${account.customer != null ? account.customer.fullName : ''}"></td>
+            <td th:text="${account.customer != null ? account.customer.mobile : ''}"></td>
+            <td th:text="${account.email}"></td>
+            <td th:text="${account.accountName}"></td>
+            <td>
+                <a type="button" th:href="@{/adminCustomer/{id}(id=${account.accountID})}">View detail</a>
+                <a type="button" th:href="@{/adminCustomer/{id}/delete(id=${account.accountID})}">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

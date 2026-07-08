@@ -1,4 +1,4 @@
-package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller;
+package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller.auth;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
