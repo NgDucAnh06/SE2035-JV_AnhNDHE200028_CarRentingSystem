@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<nav th:fragment="adminSidebar" class="d-flex flex-column h-100">
+    <div class="mb-4 px-2">
+        <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">Menu Admin</h6>
+        <ul class="nav flex-column gap-2">
+            <li class="nav-item">
+                <a href="/adminCustomer/adminCustomerList" class="sidebar-link active">
+                    <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                    Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/cars" class="sidebar-link">
+                    <i data-lucide="car-front" style="width: 20px; height: 20px;"></i>
+                    Cars
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/rentals" class="sidebar-link">
+                    <i data-lucide="calendar-check" style="width: 20px; height: 20px;"></i>
+                    Rentals
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/admin/reports" class="sidebar-link">
+                    <i data-lucide="bar-chart-3" style="width: 20px; height: 20px;"></i>
+                    Reports
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="mt-auto px-2 border-top pt-4">
+        <a href="/logout" class="sidebar-link text-danger">
+            <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
+            Log out
+        </a>
+    </div>
+</nav>
+
+</body>
+</html>

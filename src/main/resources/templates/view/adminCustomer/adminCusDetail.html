@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Detail</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="mb-4 d-flex align-items-center gap-3">
+        <a th:href="@{/adminCustomer/adminCustomerList}" class="btn-outline-modern text-decoration-none border-0 px-2">
+            <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+        </a>
+        <h3 class="mb-0 text-dark fw-bold">Customer Profile Detail</h3>
+    </div>
+
+    <div th:if="${account == null}" class="alert alert-danger" style="border-radius: var(--radius-lg);">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px; display: inline-block; vertical-align: text-bottom;"></i>
+        Customer not found!
+    </div>
+
+    <div th:if="${account != null}" class="row g-4">
+        <!-- Account Info Card -->
+        <div class="col-md-5 col-lg-4">
+            <div class="card-modern h-100">
+                <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                    <div class="bg-light rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i data-lucide="user" class="text-teal" style="width: 32px; height: 32px; color: var(--color-primary);"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-1 fw-bold" th:text="${account.accountName}"></h5>
+                        <span class="badge bg-primary rounded-pill text-uppercase px-3 py-2" th:text="${account.role}" style="font-size: 0.7rem; letter-spacing: 1px;"></span>
+                    </div>
+                </div>
+                
+                <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">System Information</h6>
+                <div class="mb-3">
+                    <small class="text-muted d-block mb-1">Account ID</small>
+                    <div class="fw-medium text-dark" th:text="${account.accountID}"></div>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block mb-1">Email Address</small>
+                    <div class="fw-medium text-dark" th:text="${account.email}"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Profile Card -->
+        <div class="col-md-7 col-lg-8">
+            <div class="card-modern h-100">
+                <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                    <i data-lucide="contact" class="text-muted" style="width: 20px; height: 20px;"></i>
+                    Personal Details
+                </h5>
+                
+                <div th:if="${account.customer != null}" class="row g-4">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block mb-1">Full Name</small>
+                        <div class="fw-medium text-dark" th:text="${account.customer.fullName}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block mb-1">Mobile Phone</small>
+                        <div class="fw-medium text-dark" th:text="${account.customer.mobile}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block mb-1">Birthday</small>
+                        <div class="fw-medium text-dark" th:text="${account.customer.birthday}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block mb-1">Identity Card (CMND/CCCD)</small>
+                        <div class="fw-medium text-dark" th:text="${account.customer.identityCard}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block mb-1">Driving Licence Number</small>
+                        <div class="fw-medium text-dark" th:text="${account.customer.licenceNumber}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block mb-1">Licence Issue Date</small>
+                        <div class="fw-medium text-dark" th:text="${account.customer.licenceDate}"></div>
+                    </div>
+                </div>
+                
+                <div th:if="${account.customer == null}" class="text-center py-5">
+                    <i data-lucide="file-warning" class="text-muted mb-3 mx-auto" style="width: 48px; height: 48px; opacity: 0.5;"></i>
+                    <p class="text-muted">This account does not have a customer profile yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

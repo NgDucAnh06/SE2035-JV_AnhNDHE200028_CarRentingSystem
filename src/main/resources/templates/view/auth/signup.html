@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Car Rental</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 2rem 0;
+        }
+        .auth-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 3rem;
+            width: 100%;
+            max-width: 700px;
+            transition: transform 0.3s ease;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-header h3 {
+            font-weight: 700;
+            color: #111827;
+        }
+        .auth-header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background-color: #ffffff;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .text-danger {
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        .auth-footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="auth-header">
+            <h3>Create an Account</h3>
+            <p>Join us to start renting your dream car</p>
+        </div>
+        
+        <form th:action="@{/auth/signup}" th:object="${registerDTO}" method="post">
+            <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                <p class="mb-0" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" th:field="*{fullName}" class="form-control" placeholder="Nguyen Van A" required>
+                    <div th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-danger"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" th:field="*{email}" class="form-control" placeholder="name@example.com" required>
+                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mobile Number</label>
+                    <input type="text" th:field="*{mobile}" class="form-control" placeholder="0901234567" required>
+                    <div th:if="${#fields.hasErrors('mobile')}" th:errors="*{mobile}" class="text-danger"></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Birthday</label>
+                    <input type="date" th:field="*{birthday}" class="form-control" required>
+                    <div th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}" class="text-danger"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Identity Card</label>
+                    <input type="text" th:field="*{identityCard}" class="form-control" placeholder="ID Number" required>
+                    <div th:if="${#fields.hasErrors('identityCard')}" th:errors="*{identityCard}" class="text-danger"></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Licence Number</label>
+                    <input type="text" th:field="*{licenceNum}" class="form-control" placeholder="Licence" required>
+                    <div th:if="${#fields.hasErrors('licenceNum')}" th:errors="*{licenceNum}" class="text-danger"></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Licence Date</label>
+                    <input type="date" th:field="*{licenceDate}" class="form-control" required>
+                    <div th:if="${#fields.hasErrors('licenceDate')}" th:errors="*{licenceDate}" class="text-danger"></div>
+                </div>
+            </div>
+
+            <hr class="my-4 text-muted">
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Account Name (Username)</label>
+                    <input type="text" th:field="*{accountName}" class="form-control" placeholder="Choose a username" required>
+                    <div th:if="${#fields.hasErrors('accountName')}" th:errors="*{accountName}" class="text-danger"></div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Password</label>
+                    <input type="password" th:field="*{password}" class="form-control" placeholder="Create a password" required>
+                    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+            </div>
+
+            <div class="auth-footer">
+                Already have an account? <a th:href="@{/auth/signin}">Sign in</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

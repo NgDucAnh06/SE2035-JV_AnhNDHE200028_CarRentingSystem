@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">FUCarRenting</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Motion One -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@11.11.13/dist/motion.js"></script>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragment/header :: header}"></div>
+
+    <div class="container-fluid flex-grow-1 d-flex flex-column flex-md-row p-0">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 bg-white border-end py-4 px-3" th:replace="~{fragment/userSidebar :: userSidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="col-md-9 col-lg-10 p-4 p-lg-5 bg-light motion-container" layout:fragment="content" id="main-content">
+            <p>Default content</p>
+        </main>
+    </div>
+
+    <div th:replace="~{fragment/footer :: footer}"></div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts Initialization -->
+    <script>
+        lucide.createIcons();
+        const { animate } = Motion;
+        document.addEventListener("DOMContentLoaded", () => {
+            const mainContent = document.getElementById("main-content");
+            if(mainContent) {
+                animate(mainContent, { opacity: [0, 1], y: [15, 0] }, { duration: 0.5, easing: "ease-out" });
+            }
+        });
+    </script>
+</body>
+</html>

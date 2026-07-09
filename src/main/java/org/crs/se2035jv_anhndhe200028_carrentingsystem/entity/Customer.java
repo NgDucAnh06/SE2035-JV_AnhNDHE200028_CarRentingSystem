@@ -18,21 +18,21 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CustomerID")
-    private Long customerID;
+    private Integer customerID;
 
-    @Column(name = "FullName", columnDefinition = "NVARCHAR(255)", nullable = false)
+    @Column(name = "FullName", columnDefinition = "NVARCHAR(200)", nullable = false)
     private String fullName;
 
-    @Column(name = "Mobile", nullable = false)
+    @Column(name = "Mobile", columnDefinition = "VARCHAR(15)", nullable = false)
     private String mobile;
 
     @Column(name = "Birthday", nullable = false)
     private LocalDate birthday;
 
-    @Column(name = "IdentityCard", nullable = false)
+    @Column(name = "IdentityCard", columnDefinition = "VARCHAR(20)", nullable = false)
     private String identityCard;
 
-    @Column(name = "LicenceNumber", nullable = false)
+    @Column(name = "LicenceNumber", columnDefinition = "VARCHAR(20)", nullable = false)
     private String licenceNumber;
 
     @Column(name = "LicenceDate", nullable = false)
