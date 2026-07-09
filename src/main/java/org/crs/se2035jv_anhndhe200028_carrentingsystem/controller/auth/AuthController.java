@@ -27,7 +27,7 @@ public class AuthController {
     @GetMapping("/signin")
     public String showSignin(Model model) {
         model.addAttribute("account", new LoginRequestDTO());
-        return "auth/signin";
+        return "view/auth/signin";
     }
 
     @PostMapping("/signin")
@@ -35,7 +35,7 @@ public class AuthController {
                                 BindingResult bindingResult,
                                 HttpSession session) {
         if (bindingResult.hasErrors()) {
-            return "auth/signin";
+            return "view/auth/signin";
         }
 
         try {
@@ -47,7 +47,7 @@ public class AuthController {
             return "redirect:/home";
         } catch (BadCredentialsException ex) {
             bindingResult.reject("loginFailed", ex.getMessage());
-            return "auth/signin";
+            return "view/auth/signin";
         }
     }
 
@@ -55,14 +55,14 @@ public class AuthController {
     @GetMapping("/signup")
     public String showSignup(Model model) {
         model.addAttribute("registerDTO", new RegisterRequestDTO());
-        return "auth/signup";
+        return "view/auth/signup";
     }
 
     @PostMapping("/signup")
     public String processSignup(@Valid @ModelAttribute("registerDTO") RegisterRequestDTO registerRequestDTO,
                                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "auth/signup";
+            return "view/auth/signup";
         }
 
         try {
@@ -70,7 +70,7 @@ public class AuthController {
             return "redirect:/auth/signin";
         } catch (CustomValidationException ex) {
             ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
-            return "auth/signup";
+            return "view/auth/signup";
         }
     }
 }

@@ -16,18 +16,18 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "AccountID")
-    private Long accountID;
+    private Integer accountID;
 
-    @Column(name = "AccountName", columnDefinition = "VARCHAR(255)", nullable = false)
+    @Column(name = "AccountName", columnDefinition = "NVARCHAR(100)", nullable = false)
     private String accountName;
 
-    @Column(name = "Email", nullable = false)
+    @Column(name = "Email", columnDefinition = "VARCHAR(200)", nullable = false)
     private String email;
 
-    @Column(name = "Password", nullable = false)
+    @Column(name = "Password", columnDefinition = "VARCHAR(200)", nullable = false)
     private String password;
 
-    @Column(name = "Role", nullable = false)
+    @Column(name = "Role", columnDefinition = "NVARCHAR(10)", nullable = false)
     private String role;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)

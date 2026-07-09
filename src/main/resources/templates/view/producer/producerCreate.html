@@ -1,36 +1,60 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
 <head>
     <meta charset="UTF-8">
     <title>Create Car Producer</title>
 </head>
 <body>
-<h2>Create New Car Producer</h2>
+<main layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="mb-4 d-flex align-items-center gap-3">
+                <a href="#" onclick="history.back()" class="btn-outline-modern text-decoration-none border-0 px-2">
+                    <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+                </a>
+                <div>
+                    <h3 class="mb-1 text-dark fw-bold">Create Producer</h3>
+                    <p class="text-muted mb-0">Add a new car manufacturer</p>
+                </div>
+            </div>
 
-<div th:if="${param.success}">
-    <p style="color: green; font-weight: bold;">Car producer has been saved successfully!</p>
-</div>
+            <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-radius: var(--radius-lg);">
+                <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px; display: inline-block; vertical-align: text-bottom;"></i>
+                Producer has been saved successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
 
-<form th:action="@{/producer/create}" th:object="${carProducer}" method="post">
-    <div style="margin-bottom: 10px;">
-        <label for="producerName">Producer Name:</label><br/>
-        <input type="text" id="producerName" th:field="*{producerName}" required/>
-        <p th:if="${#fields.hasErrors('producerName')}" th:errors="*{producerName}" style="color: red; font-size: 0.9em; margin-top: 5px;"></p>
+            <div class="card-modern">
+                <form th:action="@{/producer/create}" th:object="${carProducer}" method="post">
+                    <div class="mb-4">
+                        <label for="producerName" class="form-label-modern">Producer Name</label>
+                        <input type="text" id="producerName" th:field="*{producerName}" class="form-control-modern" placeholder="e.g. Toyota, Honda" required/>
+                        <div th:if="${#fields.hasErrors('producerName')}" th:errors="*{producerName}" class="text-danger mt-1" style="font-size: 0.8rem;"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="address" class="form-label-modern">Address</label>
+                        <input type="text" id="address" th:field="*{address}" class="form-control-modern" placeholder="Headquarters location" required/>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="country" class="form-label-modern">Country</label>
+                        <input type="text" id="country" th:field="*{country}" class="form-control-modern" placeholder="e.g. Japan, Germany" required/>
+                    </div>
+
+                    <div class="mt-5 d-flex justify-content-end border-top pt-4">
+                        <button type="submit" class="btn-primary-modern">
+                            <i data-lucide="save" style="width: 18px; height: 18px;"></i>
+                            Save Producer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <div style="margin-bottom: 10px;">
-        <label for="address">Address:</label><br/>
-        <input type="text" id="address" th:field="*{address}" required/>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-        <label for="country">Country:</label><br/>
-        <input type="text" id="country" th:field="*{country}" required/>
-    </div>
-
-    <div style="margin-top: 20px;">
-        <button type="submit">Save Producer</button>
-    </div>
-</form>
+</main>
 </body>
 </html>

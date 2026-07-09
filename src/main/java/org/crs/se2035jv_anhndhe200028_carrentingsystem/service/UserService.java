@@ -15,6 +15,6 @@ public interface UserService {
     void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, HttpSession session);
     List<Account> getAllAccount();
     List<Account> getAccountsByRole(String role);
-    Account getAccountById(Long id);
-    void delete(Long id);
+    Account getAccountById(Integer id);
+    void delete(Integer id);
 }

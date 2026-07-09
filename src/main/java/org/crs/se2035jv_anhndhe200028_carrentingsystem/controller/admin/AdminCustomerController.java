@@ -28,7 +28,7 @@ public class AdminCustomerController {
 
     //detail
     @GetMapping("/{id}")
-    public String customerDetail(@PathVariable("id") Long id, Model model) {
+    public String customerDetail(@PathVariable("id") Integer id, Model model) {
         Account account = userService.getAccountById(id);
         model.addAttribute("account", account);
         return "view/adminCustomer/adminCusDetail";
@@ -36,7 +36,7 @@ public class AdminCustomerController {
 
     //delete
     @GetMapping("/{id}/delete")
-    public String customerDelete(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+    public String customerDelete(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
         userService.delete(id);
         redirectAttributes.addAttribute("message", "Deleted successfully the account with id: " + id);
         return "redirect:/adminCustomer/adminCustomerList";

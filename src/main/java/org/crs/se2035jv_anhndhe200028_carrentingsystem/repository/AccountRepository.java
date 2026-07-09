@@ -5,12 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface AccountRepository extends JpaRepository<Account, Long> {
+public interface AccountRepository extends JpaRepository<Account, Integer> {
     Account findByAccountName(String accountName);
     Account findAccountByAccountNameAndPassword(String accountName, String password);
     Account findAccountByEmail(String email);
     List<Account> findByRole(String role);
 
-    Account findAccountByAccountID(Long accountID);
-    void deleteAccountByAccountID(Long accountID);
+    Account findAccountByAccountID(Integer accountID);
+    void deleteAccountByAccountID(Integer accountID);
 }

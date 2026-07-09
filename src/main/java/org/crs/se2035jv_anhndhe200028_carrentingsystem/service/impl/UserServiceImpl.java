@@ -85,28 +85,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, HttpSession session) {
         Account sessionAccount = (Account) session.getAttribute("account");
-        long accountId = sessionAccount.getAccountID();
-        long customerId = sessionAccount.getCustomer().getCustomerID();
+        Integer accountId = sessionAccount.getAccountID();
+        Integer customerId = sessionAccount.getCustomer().getCustomerID();
 
         java.util.Map<String, String> errors = new java.util.HashMap<>();
 
         Account checkAccount = accountRepository.findAccountByEmail(updateProfileRequestDTO.getEmail());
-        if (checkAccount != null && checkAccount.getAccountID() != accountId) {
+        if (checkAccount != null && !checkAccount.getAccountID().equals(accountId)) {
             errors.put("email", "Email already exists!");
         }
 
         Customer checkCustomer = customerRepository.findCustomerByMobile(updateProfileRequestDTO.getMobile());
-        if (checkCustomer != null && checkCustomer.getCustomerID() != customerId) {
+        if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
             errors.put("mobile", "Mobile already exists!");
         }
 
         checkCustomer = customerRepository.findCustomerByIdentityCard(updateProfileRequestDTO.getIdentityCard());
-        if (checkCustomer != null && checkCustomer.getCustomerID() != customerId) {
+        if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
             errors.put("identityCard", "Identity card already exists!");
         }
 
         checkCustomer = customerRepository.findCustomerByLicenceNumber(updateProfileRequestDTO.getLicenceNum());
-        if (checkCustomer != null && checkCustomer.getCustomerID() != customerId) {
+        if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
             errors.put("licenceNum", "Licence number already exists!");
         }
 
@@ -144,13 +144,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Account getAccountById(Long id) {
-        return accountRepository.findById(id).orElse(null);
+    public Account getAccountById(Integer id) {
+        return accountRepository.findAccountByAccountID(id);
     }
 
     @Override
-    public void delete(Long id) {
-        accountRepository.deleteById(id);
+    public void delete(Integer id) {
+        accountRepository.deleteAccountByAccountID(id);
     }
 
 }

@@ -28,4 +28,14 @@ public class CarServiceImpl implements CarService {
     public Car findByCarName(String carName) {
         return carRepository.findByCarName(carName);
     }
+
+    @Override
+    public java.util.List<Car> findAvailableCars() {
+        return carRepository.findByStatus("AVAILABLE");
+    }
+
+    @Override
+    public Car findById(Integer id) {
+        return carRepository.findById(id).orElse(null);
+    }
 }

@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "CarRental")
@@ -18,7 +19,7 @@ public class CarRental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CarRenID")
-    private Long carRenID;
+    private Integer carRenID;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "CustomerID", nullable = false)
@@ -29,15 +30,15 @@ public class CarRental {
     private Car car;
 
     @Column(name = "PickupDate", nullable = false)
-    private LocalDateTime pickupDate;
+    private LocalDate pickupDate;
 
     @Column(name = "ReturnDate", nullable = false)
-    private LocalDateTime returnDate;
+    private LocalDate returnDate;
 
-    @Column(name = "RentPrice", nullable = false)
-    private Double rentPrice;
+    @Column(name = "RentPrice", precision = 10, nullable = false)
+    private BigDecimal rentPrice;
 
-    @Column(name = "Status", nullable = false)
+    @Column(name = "Status", columnDefinition = "NVARCHAR(10)", nullable = false)
     private String status;
 
     @PrePersist

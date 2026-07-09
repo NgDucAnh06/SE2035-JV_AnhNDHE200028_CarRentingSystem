@@ -8,21 +8,36 @@
 </head>
 <body>
 
-<header th:fragment="header">
-    <a href="/">
-        <span>
-            FUCarRenting</span>
-        </span>
-    </a>
+<header th:fragment="header" class="sticky-top bg-white border-bottom shadow-sm">
+    <nav class="navbar navbar-expand-lg py-3 px-4">
+        <div class="container-fluid">
+            <!-- Brand -->
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark" href="/">
+                <i data-lucide="car" class="text-teal" style="color: var(--color-primary);"></i>
+                <span>FU<span style="color: var(--color-primary);">CarRenting</span></span>
+            </a>
 
-    <div style="display: flex; gap: 12px; align-items: center;">
-        <a href="/sign-in">
-            Sign in
-        </a>
-        <a href="/sign-up">
-            Sign up
-        </a>
-    </div>
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <!-- Nav Items -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium text-secondary hover-text-primary" href="/sign-in">Sign in</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary-modern" href="/sign-up">
+                            Sign up
+                            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 </header>
 
 </body>

@@ -16,7 +16,7 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
-    private Long id;
+    private Integer reviewId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "CarRenID", nullable = false)
@@ -25,7 +25,7 @@ public class Review {
     @Column(name = "ReviewStar", nullable = false)
     private Integer reviewStar;
 
-    @Column(name = "Comment", nullable = false)
+    @Column(name = "Comment", columnDefinition = "NVARCHAR(500)", nullable = false)
     private String comment;
 
 }

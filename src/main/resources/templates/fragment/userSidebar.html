@@ -8,12 +8,37 @@
 </head>
 <body>
 
-<nav th:fragment="userSidebar">
-    <ul>
-        <li><a href="/user/profile">Manage Profile</a></li>
-        <li><a href="/user/renting/create">Create Renting Transaction</a></li>
-        <li><a href="/user/renting/history">View Transaction History</a></li>
-    </ul>
+<nav th:fragment="userSidebar" class="d-flex flex-column h-100">
+    <div class="mb-4 px-2">
+        <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">Menu User</h6>
+        <ul class="nav flex-column gap-2">
+            <li class="nav-item">
+                <a href="/user/profile" class="sidebar-link">
+                    <i data-lucide="user" style="width: 20px; height: 20px;"></i>
+                    Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/user/renting/create" class="sidebar-link">
+                    <i data-lucide="car-front" style="width: 20px; height: 20px;"></i>
+                    Rent a Car
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="/user/renting/history" class="sidebar-link">
+                    <i data-lucide="history" style="width: 20px; height: 20px;"></i>
+                    History
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="mt-auto px-2 border-top pt-4">
+        <a href="/logout" class="sidebar-link text-danger">
+            <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
+            Log out
+        </a>
+    </div>
 </nav>
 
 </body>
