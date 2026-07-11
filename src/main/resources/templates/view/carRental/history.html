@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/user}">
+<head>
+    <meta charset="UTF-8">
+    <title>Rental History</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Your trips</div>
+            <h1 class="page-title">Rental History</h1>
+            <p class="page-subtitle">Review submitted rentals, dates, totals, and current processing status.</p>
+        </div>
+        <a th:href="@{/carRental/rentalRegister}" class="btn-primary-modern">
+            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            New rental
+        </a>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <h5 class="mb-1">Rental records</h5>
+            <p class="mb-0 text-muted small">Your rental history from the current account session.</p>
+        </div>
+        <div class="table-responsive" th:if="${rentalList != null and !rentalList.isEmpty()}">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Car</th>
+                    <th>Pickup Date</th>
+                    <th>Return Date</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="rental, iterStat : ${rentalList}">
+                    <td th:text="${iterStat.count}">1</td>
+                    <td class="fw-bold text-dark" th:text="${rental.car != null ? rental.car.carName : 'N/A'}">Car</td>
+                    <td th:text="${rental.pickupDate}">2026-01-01</td>
+                    <td th:text="${rental.returnDate}">2026-01-03</td>
+                    <td class="fw-bold" th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">0 $</td>
+                    <td>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}" th:text="${rental.status}">ACTIVE</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${rentalList == null or rentalList.isEmpty()}" class="empty-state">
+            <div class="empty-state-icon"><i data-lucide="history"></i></div>
+            <h5>No rental history yet</h5>
+            <p class="mb-3">Create your first rental order and it will appear here.</p>
+            <a th:href="@{/carRental/rentalRegister}" class="btn-primary-modern">Rent a car</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

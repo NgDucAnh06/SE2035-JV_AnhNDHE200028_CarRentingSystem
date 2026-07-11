@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Fleet</div>
+            <h1 class="page-title">Car Management</h1>
+            <p class="page-subtitle">Track every car, rental price, availability status, and producer in one clean table.</p>
+        </div>
+        <a th:href="@{/car/create}" class="btn-primary-modern">
+            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            Add car
+        </a>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        Car has been updated successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        The requested car could not be found.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header d-flex align-items-center justify-content-between gap-3">
+            <div>
+                <h5 class="mb-1">Fleet inventory</h5>
+                <p class="mb-0 text-muted small">Cars available for rental operations.</p>
+            </div>
+            <span class="status-badge status-active" th:text="${cars != null ? #lists.size(cars) + ' cars' : '0 cars'}">0 cars</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Car</th>
+                    <th>Producer</th>
+                    <th>Year</th>
+                    <th>Color</th>
+                    <th>Seats</th>
+                    <th>Price/day</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="car, stat : ${cars}">
+                    <td th:text="${stat.count}">1</td>
+                    <td>
+                        <div class="fw-bold text-dark" th:text="${car.carName}">Car name</div>
+                        <div class="text-muted small" th:text="${car.description}">Description</div>
+                    </td>
+                    <td th:text="${car.producer != null ? car.producer.producerName : 'N/A'}">Producer</td>
+                    <td th:text="${car.carModelYear}">2026</td>
+                    <td th:text="${car.color}">Black</td>
+                    <td th:text="${car.capacity}">4</td>
+                    <td class="fw-bold" th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">$0</td>
+                    <td>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(car.status)}" th:text="${car.status}">AVAILABLE</span>
+                    </td>
+                    <td class="text-end">
+                        <a class="btn-outline-modern btn-sm" th:href="@{/car/{id}(id=${car.carID})}">
+                            <i data-lucide="pen-line" style="width: 16px; height: 16px;"></i>
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${cars == null or #lists.isEmpty(cars)}">
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="car-front"></i></div>
+                            <h5>No cars yet</h5>
+                            <p class="mb-3">Add the first vehicle to start managing your rental fleet.</p>
+                            <a th:href="@{/car/create}" class="btn-primary-modern">Add car</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

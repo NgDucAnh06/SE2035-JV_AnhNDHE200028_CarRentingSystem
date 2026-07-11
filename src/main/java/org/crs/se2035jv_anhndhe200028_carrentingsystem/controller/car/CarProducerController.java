@@ -16,11 +16,17 @@ public class CarProducerController {
 
     private final CarProducerService carProducerService;
 
+    @GetMapping("/list")
+    public String producerList(Model model) {
+        model.addAttribute("producers", carProducerService.getAll());
+        return "view/producer/list";
+    }
+
     //create
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("carProducer", new CarProducer());
-        return "view/producer/producerCreate";
+        return "view/producer/create";
     }
 
     @PostMapping("/create")
@@ -30,7 +36,7 @@ public class CarProducerController {
             return "redirect:/producer/create?success";
         } catch (DuplicateResourceException ex) {
             bindingResult.rejectValue("producerName", "error.producerName", ex.getMessage());
-            return "view/producer/producerCreate";
+            return "view/producer/create";
         }
     }
 
@@ -42,7 +48,7 @@ public class CarProducerController {
             return "redirect:/producer/list?error=notfound";
         }
         model.addAttribute("carProducer", carProducer);
-        return "view/producer/producerCreate";
+        return "view/producer/create";
     }
 
     @PostMapping("/update")
@@ -52,7 +58,7 @@ public class CarProducerController {
             return "redirect:/producer/list?success";
         } catch (DuplicateResourceException ex) {
             bindingResult.rejectValue("producerName", "error.producerName", ex.getMessage());
-            return "view/producer/producerCreate";
+            return "view/producer/create";
         }
     }
 }

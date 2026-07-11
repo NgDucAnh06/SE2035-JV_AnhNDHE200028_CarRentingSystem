@@ -19,11 +19,11 @@ public class AdminCustomerController {
     private final UserService userService;
 
     //list
-    @GetMapping("/adminCustomerList")
+    @GetMapping("/list")
     public String customerList(Model model) {
         List<Account> accountList = userService.getAccountsByRole("customer");
         model.addAttribute("accounts", accountList);
-        return "view/adminCustomer/adminCusList";
+        return "view/adminCustomer/list";
     }
 
     //detail
@@ -31,7 +31,7 @@ public class AdminCustomerController {
     public String customerDetail(@PathVariable("id") Integer id, Model model) {
         Account account = userService.getAccountById(id);
         model.addAttribute("account", account);
-        return "view/adminCustomer/adminCusDetail";
+        return "view/adminCustomer/detail";
     }
 
     //delete
@@ -39,6 +39,6 @@ public class AdminCustomerController {
     public String customerDelete(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
         userService.delete(id);
         redirectAttributes.addAttribute("message", "Deleted successfully the account with id: " + id);
-        return "redirect:/adminCustomer/adminCustomerList";
+        return "redirect:/adminCustomer/list";
     }
 }

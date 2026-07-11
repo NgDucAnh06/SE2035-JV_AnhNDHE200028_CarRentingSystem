@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Rental Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Operations</div>
+            <h1 class="page-title">Rental Management</h1>
+            <p class="page-subtitle">Monitor active rental orders, close completed trips, or cancel rentals when needed.</p>
+        </div>
+        <span class="status-badge status-active" th:text="${rentals != null ? #lists.size(rentals) + ' rentals' : '0 rentals'}">0 rentals</span>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <h5 class="mb-1">Rental queue</h5>
+            <p class="mb-0 text-muted small">Sorted by the current service response.</p>
+        </div>
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Customer</th>
+                    <th>Car</th>
+                    <th>Pickup</th>
+                    <th>Return</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="rental, stat: ${rentals}">
+                    <td th:text="${stat.count}">1</td>
+                    <td class="fw-bold text-dark" th:text="${rental.fullName}">Customer</td>
+                    <td th:text="${rental.carName}">Car</td>
+                    <td th:text="${#temporals.format(rental.pickupDate, 'dd/MM/yyyy')}">01/01/2026</td>
+                    <td th:text="${#temporals.format(rental.returnDate, 'dd/MM/yyyy')}">02/01/2026</td>
+                    <td class="fw-bold" th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">0 $</td>
+                    <td>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}" th:text="${rental.status}">ACTIVE</span>
+                    </td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2 flex-wrap" th:if="${rental.status == T(org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus).ACTIVE.name()}">
+                            <form th:action="@{/adminRental/{id}/complete(id=${rental.carRenID})}" method="post">
+                                <button type="submit" class="btn-soft-modern btn-sm">
+                                    <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>
+                                    Complete
+                                </button>
+                            </form>
+                            <form th:action="@{/adminRental/{id}/cancel(id=${rental.carRenID})}" method="post">
+                                <button type="submit" class="btn-danger-modern btn-sm" onclick="return confirm('Are you sure you want to cancel this rental?');">
+                                    <i data-lucide="x-circle" style="width: 16px; height: 16px;"></i>
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${rentals == null or #lists.isEmpty(rentals)}">
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="calendar-check"></i></div>
+                            <h5>No rental records</h5>
+                            <p class="mb-0">Rental orders will appear here when customers submit them.</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

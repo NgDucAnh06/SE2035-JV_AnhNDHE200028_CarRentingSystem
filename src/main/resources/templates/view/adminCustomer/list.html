@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Accounts</div>
+            <h1 class="page-title">Customer Management</h1>
+            <p class="page-subtitle">Review customer contact, login, and profile information before managing rentals.</p>
+        </div>
+        <span class="status-badge status-available" th:text="${accounts != null ? #lists.size(accounts) + ' customers' : '0 customers'}">0 customers</span>
+    </div>
+
+    <div th:if="${param.message}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        <span th:text="${param.message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <h5 class="mb-1">Customer directory</h5>
+            <p class="mb-0 text-muted small">All accounts with customer role.</p>
+        </div>
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Customer</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="account, stat: ${accounts}">
+                    <td th:text="${stat.count}">1</td>
+                    <td>
+                        <div class="fw-bold text-dark" th:text="${account.customer != null ? account.customer.fullName : 'No profile'}">Full name</div>
+                        <div class="text-muted small" th:text="${account.role}">CUSTOMER</div>
+                    </td>
+                    <td th:text="${account.customer != null ? account.customer.mobile : 'N/A'}">0900000000</td>
+                    <td th:text="${account.email}">email@example.com</td>
+                    <td th:text="${account.accountName}">username</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+                            <a class="btn-outline-modern btn-sm" th:href="@{/adminCustomer/{id}(id=${account.accountID})}">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                View
+                            </a>
+                            <a class="btn-danger-modern btn-sm" th:href="@{/adminCustomer/{id}/delete(id=${account.accountID})}" onclick="return confirm('Are you sure you want to delete this customer?');">
+                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${accounts == null or #lists.isEmpty(accounts)}">
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="users"></i></div>
+                            <h5>No customers found</h5>
+                            <p class="mb-0">Customer accounts will appear here after signup.</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

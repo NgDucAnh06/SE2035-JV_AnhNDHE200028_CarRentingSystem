@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Producer Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Manufacturers</div>
+            <h1 class="page-title">Producer Management</h1>
+            <p class="page-subtitle">Maintain producer information so every car record stays easy to classify.</p>
+        </div>
+        <a th:href="@{/producer/create}" class="btn-primary-modern">
+            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            Add producer
+        </a>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        Producer has been updated successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        The requested producer could not be found.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header d-flex align-items-center justify-content-between gap-3">
+            <div>
+                <h5 class="mb-1">Producer directory</h5>
+                <p class="mb-0 text-muted small">Brand, address, and origin details.</p>
+            </div>
+            <span class="status-badge status-confirmed" th:text="${producers != null ? #lists.size(producers) + ' producers' : '0 producers'}">0 producers</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Producer</th>
+                    <th>Country</th>
+                    <th>Address</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="producer, stat : ${producers}">
+                    <td th:text="${stat.count}">1</td>
+                    <td class="fw-bold text-dark" th:text="${producer.producerName}">Toyota</td>
+                    <td th:text="${producer.country}">Japan</td>
+                    <td th:text="${producer.address}">Address</td>
+                    <td class="text-end">
+                        <a class="btn-outline-modern btn-sm" th:href="@{/producer/{id}(id=${producer.producerID})}">
+                            <i data-lucide="pen-line" style="width: 16px; height: 16px;"></i>
+                            Edit
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${producers == null or #lists.isEmpty(producers)}">
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="factory"></i></div>
+                            <h5>No producers yet</h5>
+                            <p class="mb-3">Create the first producer before adding vehicles.</p>
+                            <a th:href="@{/producer/create}" class="btn-primary-modern">Add producer</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -10,12 +10,10 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -38,7 +36,7 @@ public class CarRentalController {
         List<Car> availableCars = carService.findAvailableCars();
         model.addAttribute("cars", availableCars);
         model.addAttribute("carRental", new CarRental());
-        return "view/carRental/rentalRegister";
+        return "view/carRental/register";
     }
 
     @PostMapping("/rentalRegister")
@@ -71,6 +69,6 @@ public class CarRentalController {
         }
         List<CarRental> carRentalList = carRentalService.getAllCarRentalByCustomer(customer);
         model.addAttribute("rentalList", carRentalList);
-        return "view/carRental/viewHistory";
+        return "view/carRental/history";
     }
 }

@@ -1,10 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/user}">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Dashboard</title>
 </head>
 <body>
+<main layout:fragment="content">
+    <!-- Welcome header -->
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Dashboard</div>
+            <h1 class="page-title">
+                Welcome back<span th:if="${session.account != null}">,&nbsp;<span
+                    class="text-primary" th:text="${session.account.accountName}"></span></span>
+            </h1>
+            <p class="page-subtitle">Manage your rentals, check your history, or keep profile information ready for your next booking.</p>
+        </div>
+        <a th:href="@{/carRental/rentalRegister}" class="btn-primary-modern">
+            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            New rental
+        </a>
+    </div>
 
+    <!-- Quick-action cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-4">
+            <a th:href="@{/carRental/rentalRegister}" class="card-modern d-flex flex-column text-decoration-none h-100" style="padding: 1.5rem;">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="metric-icon" style="background: linear-gradient(135deg,#ccfbf1,#a7f3d0);">
+                        <i data-lucide="car-front" style="width: 22px; height: 22px; color: #047857;"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;">Quick action</div>
+                        <h5 class="mb-0">Rent a Car</h5>
+                    </div>
+                </div>
+                <p class="mb-0 text-muted" style="font-size: .9rem;">Browse the available fleet and create a rental order in seconds.</p>
+                <div class="mt-auto pt-3 d-flex align-items-center gap-1 fw-bold" style="color: var(--color-primary); font-size: .88rem;">
+                    Book now <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <a th:href="@{/carRental/history}" class="card-modern d-flex flex-column text-decoration-none h-100" style="padding: 1.5rem;">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="metric-icon" style="background: linear-gradient(135deg,#e0e7ff,#c7d2fe);">
+                        <i data-lucide="history" style="width: 22px; height: 22px; color: #4338ca;"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;">My account</div>
+                        <h5 class="mb-0">Rental History</h5>
+                    </div>
+                </div>
+                <p class="mb-0 text-muted" style="font-size: .9rem;">Track all previous and active rental orders with full status updates.</p>
+                <div class="mt-auto pt-3 d-flex align-items-center gap-1 fw-bold" style="color: #4338ca; font-size: .88rem;">
+                    View history <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <a th:href="@{/account/updateProfile}" class="card-modern d-flex flex-column text-decoration-none h-100" style="padding: 1.5rem;">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="metric-icon" style="background: linear-gradient(135deg,#fef3c7,#fde68a);">
+                        <i data-lucide="user-round-cog" style="width: 22px; height: 22px; color: #92400e;"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;">Settings</div>
+                        <h5 class="mb-0">Edit Profile</h5>
+                    </div>
+                </div>
+                <p class="mb-0 text-muted" style="font-size: .9rem;">Keep contact, identity, and licence details accurate for smooth bookings.</p>
+                <div class="mt-auto pt-3 d-flex align-items-center gap-1 fw-bold" style="color: #92400e; font-size: .88rem;">
+                    Update now <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Info row -->
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="surface h-100">
+                <div class="surface-header">
+                    <h5 class="mb-1">How renting works</h5>
+                    <p class="mb-0 text-muted small">Three steps to get your car.</p>
+                </div>
+                <div class="surface-body">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle fw-bold"
+                                 style="width:36px;height:36px;background:var(--color-primary-soft);color:var(--color-primary);font-size:.85rem;">1</div>
+                            <div>
+                                <div class="fw-bold mb-1">Complete your profile</div>
+                                <p class="mb-0 text-muted small">Add your full name, identity card number, and driving licence before booking. This is required to submit a rental.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle fw-bold"
+                                 style="width:36px;height:36px;background:var(--color-primary-soft);color:var(--color-primary);font-size:.85rem;">2</div>
+                            <div>
+                                <div class="fw-bold mb-1">Choose a car and set your dates</div>
+                                <p class="mb-0 text-muted small">Pick from the available fleet, select one or more vehicles, and set pickup and return dates.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle fw-bold"
+                                 style="width:36px;height:36px;background:var(--color-primary-soft);color:var(--color-primary);font-size:.85rem;">3</div>
+                            <div>
+                                <div class="fw-bold mb-1">Submit and track</div>
+                                <p class="mb-0 text-muted small">Submit the order and monitor its status in Rental History. The admin team will confirm or close the rental.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="surface h-100">
+                <div class="surface-header">
+                    <h5 class="mb-1">Account information</h5>
+                    <p class="mb-0 text-muted small">Your current session details.</p>
+                </div>
+                <div class="surface-body">
+                    <div class="detail-list">
+                        <div class="detail-item">
+                            <div class="detail-label">Username</div>
+                            <div class="detail-value" th:text="${session.account != null ? session.account.accountName : 'N/A'}">username</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value" th:text="${session.account != null ? session.account.email : 'N/A'}">email@example.com</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Full name</div>
+                            <div class="detail-value" th:text="${session.customer != null ? session.customer.fullName : 'Profile not set'}">Full name</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Profile status</div>
+                            <div class="detail-value">
+                                <span th:if="${session.customer != null}" class="status-badge status-available">Complete</span>
+                                <span th:if="${session.customer == null}" class="status-badge status-pending">Incomplete — <a th:href="@{/account/updateProfile}" class="text-decoration-none">Update now</a></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 </body>
 </html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/user}">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile Detail</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Profile</div>
+            <h1 class="page-title">Profile Detail</h1>
+            <p class="page-subtitle">A quick read-only snapshot of your account and customer information.</p>
+        </div>
+        <a th:href="@{/account/updateProfile}" class="btn-primary-modern">
+            <i data-lucide="pen-line" style="width: 18px; height: 18px;"></i>
+            Edit profile
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card-modern h-100">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="metric-icon"><i data-lucide="user"></i></div>
+                    <div>
+                        <h5 class="mb-1" th:text="${session.account != null ? session.account.accountName : 'Account'}">Account</h5>
+                        <span class="status-badge status-confirmed" th:text="${session.account != null ? session.account.role : 'CUSTOMER'}">CUSTOMER</span>
+                    </div>
+                </div>
+                <div class="detail-list">
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value" th:text="${session.account != null ? session.account.email : 'N/A'}">email@example.com</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Account ID</div>
+                        <div class="detail-value" th:text="${session.account != null ? session.account.accountID : 'N/A'}">1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="surface h-100">
+                <div class="surface-header">
+                    <h5 class="mb-1">Customer details</h5>
+                    <p class="mb-0 text-muted small">Data used while registering rental orders.</p>
+                </div>
+                <div class="surface-body">
+                    <div th:if="${session.customer != null}" class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-label">Full Name</div>
+                                <div class="detail-value" th:text="${session.customer.fullName}">Full name</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-label">Mobile</div>
+                                <div class="detail-value" th:text="${session.customer.mobile}">0900000000</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-label">Identity Card</div>
+                                <div class="detail-value" th:text="${session.customer.identityCard}">000000000</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <div class="detail-label">Licence Number</div>
+                                <div class="detail-value" th:text="${session.customer.licenceNumber}">B200000</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${session.customer == null}" class="empty-state">
+                        <div class="empty-state-icon"><i data-lucide="file-warning"></i></div>
+                        <h5>No profile data</h5>
+                        <p class="mb-0">Update your profile to complete customer information.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

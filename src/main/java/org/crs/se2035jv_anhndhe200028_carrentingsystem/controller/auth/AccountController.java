@@ -41,7 +41,7 @@ public class AccountController {
         updateProfileDTO.setLicenceDate(customer.getLicenceDate());
 
         model.addAttribute("updateProfileDTO", updateProfileDTO);
-        return "view/account/updateProfile";
+        return "view/account/update";
     }
 
     @PostMapping("/updateProfile")
@@ -49,7 +49,7 @@ public class AccountController {
                                        BindingResult bindingResult,
                                        HttpSession session) {
         if (bindingResult.hasErrors()) {
-            return "view/account/updateProfile";
+            return "view/account/update";
         }
 
         try {
@@ -57,7 +57,7 @@ public class AccountController {
             return "redirect:/home"; 
         } catch (CustomValidationException ex) {
             ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
-            return "view/account/updateProfile";
+            return "view/account/update";
         } 
     }
 }

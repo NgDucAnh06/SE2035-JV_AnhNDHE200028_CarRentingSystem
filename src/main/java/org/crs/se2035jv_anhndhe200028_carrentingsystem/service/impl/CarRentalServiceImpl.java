@@ -2,6 +2,7 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RentalSummaryDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
@@ -68,6 +69,30 @@ public class CarRentalServiceImpl implements CarRentalService {
                 rental.setRentPrice(totalRentalPrice);
 
                 this.save(rental);
+            }
+        }
+    }
+
+    @Override
+    public List<RentalSummaryDTO> showManagement() {
+        return carRentalRepository.findCarRentalSummaries();
+    }
+
+    @Override
+    public void updateStatus(Integer id, String status) {
+        CarRental rental = carRentalRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Rental not found"));
+        rental.setStatus(status);
+        carRentalRepository.save(rental);
+
+        if (rental.getCar() != null && rental.getCar().getCarID() != null) {
+            Car car = carRepository.findById(rental.getCar().getCarID()).orElse(null);
+            if (car != null) {
+                if ("COMPLETED".equals(status) || "CANCELLED".equals(status)) {
+                    car.setStatus("AVAILABLE");
+                } else if ("ACTIVE".equals(status) || "RENTED".equals(status)) {
+                    car.setStatus("RENTED");
+                }
+                carRepository.save(car);
             }
         }
     }

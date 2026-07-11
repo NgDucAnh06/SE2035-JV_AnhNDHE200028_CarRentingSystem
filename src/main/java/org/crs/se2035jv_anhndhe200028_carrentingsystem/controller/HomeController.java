@@ -16,10 +16,9 @@ public class HomeController {
         }
         
         if ("ADMIN".equalsIgnoreCase(account.getRole())) {
-            return "redirect:/adminCustomer/adminCustomerList";
+            return "redirect:/adminCustomer/list";
         } else {
-            // Because /car/list might not exist yet, we redirect to car/create as fallback or just auth/signin
-            return "redirect:/car/create"; 
+            return "view/home/home";
         }
     }
 }

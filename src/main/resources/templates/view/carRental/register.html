@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/user}">
+<head>
+    <meta charset="UTF-8">
+    <title>Register Car Rental</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Booking</div>
+            <h1 class="page-title">Rent a Car</h1>
+            <p class="page-subtitle">Choose one or more available cars, set the pickup window, and submit the rental order.</p>
+        </div>
+        <a th:href="@{/carRental/history}" class="btn-outline-modern">
+            <i data-lucide="history" style="width: 18px; height: 18px;"></i>
+            Rental history
+        </a>
+    </div>
+
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        Please select at least one car before submitting.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="car-picker">
+        <section class="surface">
+            <div class="surface-header">
+                <h5 class="mb-1">Available cars</h5>
+                <p class="mb-0 text-muted small">Pick the vehicles you want to include in this rental.</p>
+            </div>
+            <div class="table-responsive">
+                <table class="table-modern">
+                    <thead>
+                    <tr>
+                        <th>Car</th>
+                        <th>Producer</th>
+                        <th>Color</th>
+                        <th>Seats</th>
+                        <th>Price/day</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="car: ${cars}">
+                        <td class="fw-bold text-dark" th:text="${car.carName}">Car</td>
+                        <td th:text="${car.producer != null ? car.producer.producerName : 'N/A'}">Producer</td>
+                        <td th:text="${car.color}">Black</td>
+                        <td th:text="${car.capacity}">4</td>
+                        <td class="fw-bold" th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">0 $</td>
+                        <td class="text-end">
+                            <button type="button" class="btn-soft-modern btn-sm"
+                                    th:attr="data-id=${car.carID}, data-name=${car.carName}, data-price=${car.rentPrice}"
+                                    onclick="selectCar(this)">
+                                <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                                Add
+                            </button>
+                        </td>
+                    </tr>
+                    <tr th:if="${cars == null or #lists.isEmpty(cars)}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon"><i data-lucide="car-front"></i></div>
+                                <h5>No cars available</h5>
+                                <p class="mb-0">Please check again later when the fleet is available.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="surface">
+            <div class="surface-header">
+                <h5 class="mb-1">Rental details</h5>
+                <p class="mb-0 text-muted small">Selected cars and rental dates.</p>
+            </div>
+            <div class="surface-body">
+                <form th:action="@{/carRental/rentalRegister}" method="post" id="rentalForm">
+                    <div class="mb-4">
+                        <label class="form-label-modern">Selected Cars</label>
+                        <ul id="selectedCarsList" class="selected-car-list">
+                            <li class="text-muted">No cars selected yet.</li>
+                        </ul>
+                    </div>
+
+                    <div id="hiddenCarInputs"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label-modern" for="pickupDate">Pickup Date</label>
+                        <input type="date" id="pickupDate" name="pickupDate" class="form-control-modern" required onchange="updateTotalPriceDisplay()">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label-modern" for="returnDate">Return Date</label>
+                        <input type="date" id="returnDate" name="returnDate" class="form-control-modern" required onchange="updateTotalPriceDisplay()">
+                    </div>
+
+                    <div class="total-price mb-4" id="totalPriceDisplay">Total Price: $0.00</div>
+
+                    <button type="submit" class="btn-primary-modern w-100">
+                        Submit rental order
+                        <i data-lucide="send" style="width: 18px; height: 18px;"></i>
+                    </button>
+                </form>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        var selectedCars = [];
+        var basePricePerDay = 0;
+
+        function updateTotalPriceDisplay() {
+            var pickupDateStr = document.getElementById('pickupDate').value;
+            var returnDateStr = document.getElementById('returnDate').value;
+            var days = 0;
+
+            if (pickupDateStr && returnDateStr) {
+                var pickupDate = new Date(pickupDateStr);
+                var returnDate = new Date(returnDateStr);
+                days = Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 3600 * 24));
+                if (days < 0) {
+                    days = 0;
+                }
+            }
+
+            var finalTotal = basePricePerDay * days;
+            var daysText = days > 0 ? ' (' + days + ' days)' : '';
+            document.getElementById('totalPriceDisplay').innerText = 'Total Price: $' + finalTotal.toFixed(2) + daysText;
+        }
+
+        function selectCar(button) {
+            var carId = button.getAttribute('data-id');
+            var carName = button.getAttribute('data-name');
+            var carPrice = parseFloat(button.getAttribute('data-price'));
+
+            if (selectedCars.indexOf(carId) !== -1) {
+                return;
+            }
+
+            selectedCars.push(carId);
+            basePricePerDay += carPrice;
+
+            button.innerHTML = '<i data-lucide="check" style="width: 16px; height: 16px;"></i> Added';
+            button.disabled = true;
+            button.classList.remove('btn-soft-modern');
+            button.classList.add('btn-outline-modern');
+
+            var list = document.getElementById('selectedCarsList');
+            if (selectedCars.length === 1) {
+                list.innerHTML = '';
+            }
+
+            var li = document.createElement('li');
+            li.innerText = carName + ' - $' + carPrice.toFixed(2) + ' / day';
+            list.appendChild(li);
+
+            var hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'carIds';
+            hiddenInput.value = carId;
+            document.getElementById('hiddenCarInputs').appendChild(hiddenInput);
+
+            updateTotalPriceDisplay();
+            lucide.createIcons();
+        }
+    </script>
+</main>
+</body>
+</html>

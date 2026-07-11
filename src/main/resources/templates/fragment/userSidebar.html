@@ -9,32 +9,38 @@
 <body>
 
 <nav th:fragment="userSidebar" class="d-flex flex-column h-100">
-    <div class="mb-4 px-2">
-        <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.05em;">Menu User</h6>
+    <div class="mb-4 px-1">
+        <h6 class="sidebar-heading mb-3">Rental Desk</h6>
         <ul class="nav flex-column gap-2">
             <li class="nav-item">
-                <a href="/user/profile" class="sidebar-link">
-                    <i data-lucide="user" style="width: 20px; height: 20px;"></i>
-                    Profile
+                <a th:href="@{/home}" class="sidebar-link" data-active-prefix="/home">
+                    <i data-lucide="layout-dashboard" style="width: 20px; height: 20px;"></i>
+                    Dashboard
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/user/renting/create" class="sidebar-link">
+                <a th:href="@{/carRental/rentalRegister}" class="sidebar-link" data-active-prefix="/carRental/rentalRegister">
                     <i data-lucide="car-front" style="width: 20px; height: 20px;"></i>
                     Rent a Car
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/user/renting/history" class="sidebar-link">
+                <a th:href="@{/carRental/history}" class="sidebar-link" data-active-prefix="/carRental/history">
                     <i data-lucide="history" style="width: 20px; height: 20px;"></i>
                     History
+                </a>
+            </li>
+            <li class="nav-item">
+                <a th:href="@{/account/updateProfile}" class="sidebar-link" data-active-prefix="/account">
+                    <i data-lucide="user-round-cog" style="width: 20px; height: 20px;"></i>
+                    Profile
                 </a>
             </li>
         </ul>
     </div>
     
-    <div class="mt-auto px-2 border-top pt-4">
-        <a href="/logout" class="sidebar-link text-danger">
+    <div class="mt-auto px-1 border-top pt-4">
+        <a th:href="@{/logout}" class="sidebar-link text-danger">
             <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
             Log out
         </a>

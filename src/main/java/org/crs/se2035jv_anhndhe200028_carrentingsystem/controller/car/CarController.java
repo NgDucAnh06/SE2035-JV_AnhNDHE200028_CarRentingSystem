@@ -3,7 +3,6 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller.car;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.DuplicateResourceException;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarProducerRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarProducerService;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarService;
 import org.springframework.stereotype.Controller;
@@ -19,12 +18,18 @@ public class CarController {
     private final CarService carService;
     private final CarProducerService carProducerService;
 
+    @GetMapping("/list")
+    public String carList(Model model) {
+        model.addAttribute("cars", carService.getAll());
+        return "view/car/list";
+    }
+
     //create
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("car", new Car());
         model.addAttribute("producers", carProducerService.getAll());
-        return "view/car/carCreate";
+        return "view/car/create";
     }
 
     @PostMapping("/create")
@@ -35,7 +40,7 @@ public class CarController {
         } catch (DuplicateResourceException ex) {
             bindingResult.rejectValue("carName", "error.carName", ex.getMessage());
             model.addAttribute("producers", carProducerService.getAll());
-            return "view/car/carCreate";
+            return "view/car/create";
         }
     }
 
@@ -48,7 +53,7 @@ public class CarController {
         }
         model.addAttribute("car", car);
         model.addAttribute("producers", carProducerService.getAll());
-        return "view/car/carCreate";
+        return "view/car/create";
     }
 
     @PostMapping("/update")
@@ -59,7 +64,7 @@ public class CarController {
         } catch (DuplicateResourceException ex) {
             bindingResult.rejectValue("carName", "error.carName", ex.getMessage());
             model.addAttribute("producers", carProducerService.getAll());
-            return "view/car/carCreate";
+            return "view/car/create";
         }
     }
 }
