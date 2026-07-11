@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface CarService {
     void save(Car car);
+    void update(Car car);
     Car findByCarName(String carName);
     List<Car> findAvailableCars();
     Car findById(Integer id);

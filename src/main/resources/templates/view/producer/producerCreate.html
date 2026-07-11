@@ -16,8 +16,8 @@
                     <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
                 </a>
                 <div>
-                    <h3 class="mb-1 text-dark fw-bold">Create Producer</h3>
-                    <p class="text-muted mb-0">Add a new car manufacturer</p>
+                    <h3 class="mb-1 text-dark fw-bold" th:text="${carProducer.producerID == null ? 'Create Producer' : 'Update Producer'}">Create Producer</h3>
+                    <p class="text-muted mb-0" th:text="${carProducer.producerID == null ? 'Add a new car manufacturer' : 'Update manufacturer details'}">Add a new car manufacturer</p>
                 </div>
             </div>
 
@@ -28,7 +28,8 @@
             </div>
 
             <div class="card-modern">
-                <form th:action="@{/producer/create}" th:object="${carProducer}" method="post">
+                <form th:action="@{${carProducer.producerID == null ? '/producer/create' : '/producer/update'}}" th:object="${carProducer}" method="post">
+                    <input type="hidden" th:if="${carProducer.producerID != null}" th:field="*{producerID}" />
                     <div class="mb-4">
                         <label for="producerName" class="form-label-modern">Producer Name</label>
                         <input type="text" id="producerName" th:field="*{producerName}" class="form-control-modern" placeholder="e.g. Toyota, Honda" required/>
@@ -48,7 +49,7 @@
                     <div class="mt-5 d-flex justify-content-end border-top pt-4">
                         <button type="submit" class="btn-primary-modern">
                             <i data-lucide="save" style="width: 18px; height: 18px;"></i>
-                            Save Producer
+                            <span th:text="${carProducer.producerID == null ? 'Save Producer' : 'Update Producer'}">Save Producer</span>
                         </button>
                     </div>
                 </form>

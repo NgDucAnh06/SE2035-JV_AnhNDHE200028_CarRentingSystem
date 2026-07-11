@@ -9,11 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.DuplicateResourceException;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CarServiceImpl implements CarService {
-    
+
     private final CarRepository carRepository;
 
     @Override
@@ -25,12 +27,21 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
+    public void update(Car car) {
+        Car oldCar = carRepository.findByCarName(car.getCarName());
+        if (oldCar != null && !oldCar.getCarID().equals(car.getCarID())) {
+            throw new DuplicateResourceException("Car name  already exists!");
+        }
+        carRepository.save(car);
+    }
+
+    @Override
     public Car findByCarName(String carName) {
         return carRepository.findByCarName(carName);
     }
 
     @Override
-    public java.util.List<Car> findAvailableCars() {
+    public List<Car> findAvailableCars() {
         return carRepository.findByStatus("AVAILABLE");
     }
 

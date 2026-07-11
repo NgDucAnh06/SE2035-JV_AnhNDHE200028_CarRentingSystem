@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Rental History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+        
+        .nav-links {
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-links">
+        <a th:href="@{/home}">Back to Home</a>
+    </div>
+
+    <h2>Your Rental History</h2>
+    
+    <div th:if="${rentalList == null or rentalList.isEmpty()}">
+        <p>You have no rental history.</p>
+    </div>
+
+    <table th:if="${rentalList != null and !rentalList.isEmpty()}">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Car Name</th>
+                <th>Pickup Date</th>
+                <th>Return Date</th>
+                <th>Total Price</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="rental, iterStat : ${rentalList}">
+                <td th:text="${iterStat.count}"></td>
+                <td th:text="${rental.car.carName}"></td>
+                <td th:text="${rental.pickupDate}"></td>
+                <td th:text="${rental.returnDate}"></td>
+                <td th:text="${rental.rentPrice}"></td>
+                <td th:text="${rental.status}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

@@ -7,10 +7,7 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarProducerServic
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/producer")
@@ -19,6 +16,7 @@ public class CarProducerController {
 
     private final CarProducerService carProducerService;
 
+    //create
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("carProducer", new CarProducer());
@@ -30,6 +28,28 @@ public class CarProducerController {
         try {
             carProducerService.save(carProducer);
             return "redirect:/producer/create?success";
+        } catch (DuplicateResourceException ex) {
+            bindingResult.rejectValue("producerName", "error.producerName", ex.getMessage());
+            return "view/producer/producerCreate";
+        }
+    }
+
+    //update
+    @GetMapping("/{id}")
+    public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
+        CarProducer carProducer = carProducerService.findByProducerID(id);
+        if (carProducer == null) {
+            return "redirect:/producer/list?error=notfound";
+        }
+        model.addAttribute("carProducer", carProducer);
+        return "view/producer/producerCreate";
+    }
+
+    @PostMapping("/update")
+    public String processUpdateProducer(@ModelAttribute("carProducer") CarProducer carProducer, BindingResult bindingResult) {
+        try {
+            carProducerService.update(carProducer);
+            return "redirect:/producer/list?success";
         } catch (DuplicateResourceException ex) {
             bindingResult.rejectValue("producerName", "error.producerName", ex.getMessage());
             return "view/producer/producerCreate";

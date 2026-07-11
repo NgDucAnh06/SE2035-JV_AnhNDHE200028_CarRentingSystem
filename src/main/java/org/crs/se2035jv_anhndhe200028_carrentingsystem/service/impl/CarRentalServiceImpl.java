@@ -1,13 +1,20 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarRentalService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +37,38 @@ public class CarRentalServiceImpl implements CarRentalService {
                     .orElseThrow(() -> new IllegalArgumentException("Car not found"));
             car.setStatus("RENTED");
             carRepository.save(car);
+        }
+    }
+
+    @Override
+    public List<CarRental> getAllCarRentalByCustomer(Customer customer) {
+        List<CarRental> rentalList = carRentalRepository.getAllByCustomerOrderByCarRenIDDesc(customer);
+        return rentalList;
+    }
+
+    @Override
+    public void createRentals(Customer customer, List<Integer> carIds, LocalDate pickupDate, LocalDate returnDate) {
+        if (carIds == null || carIds.isEmpty()) {
+            return;
+        }
+        for (Integer carId : carIds) {
+            Car car = carRepository.findById(carId).orElse(null);
+            if (car != null && "AVAILABLE".equals(car.getStatus())) {
+                CarRental rental = new CarRental();
+                rental.setCustomer(customer);
+                rental.setCar(car);
+                rental.setPickupDate(pickupDate);
+                rental.setReturnDate(returnDate);
+
+                long days = ChronoUnit.DAYS.between(pickupDate, returnDate);
+                if (days <= 0) {
+                    days = 1;
+                }
+                BigDecimal totalRentalPrice = car.getRentPrice().multiply(BigDecimal.valueOf(days));
+                rental.setRentPrice(totalRentalPrice);
+
+                this.save(rental);
+            }
         }
     }
 }

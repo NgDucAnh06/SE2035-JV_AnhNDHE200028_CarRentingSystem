@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CarProducerRepository extends JpaRepository<CarProducer, Integer> {
     CarProducer findByProducerName(String producerName);
+    CarProducer findByProducerID(Integer id);
 }

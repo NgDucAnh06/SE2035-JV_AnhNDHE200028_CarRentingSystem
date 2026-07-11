@@ -27,6 +27,7 @@ public class CarRentalController {
     private final CarService carService;
     private final CarRentalService carRentalService;
 
+    //register
     @GetMapping("/rentalRegister")
     public String showRentalRegisterForm(Model model, HttpSession session) {
         Customer customer = (Customer) session.getAttribute("customer");
@@ -56,25 +57,20 @@ public class CarRentalController {
             return "redirect:/carRental/rentalRegister?error=NoCarsSelected";
         }
 
-        for (Integer carId : carIds) {
-            Car car = carService.findById(carId);
-            if (car != null && "AVAILABLE".equals(car.getStatus())) {
-                CarRental rental = new CarRental();
-                rental.setCustomer(customer);
-                rental.setCar(car);
-                rental.setPickupDate(pickupDate);
-                rental.setReturnDate(returnDate);
-                
-                long days = java.time.temporal.ChronoUnit.DAYS.between(pickupDate, returnDate);
-                if (days <= 0)
-                    days = 1;
-                BigDecimal totalRentalPrice = car.getRentPrice().multiply(BigDecimal.valueOf(days));
-                rental.setRentPrice(totalRentalPrice);
-
-                carRentalService.save(rental);
-            }
-        }
+        carRentalService.createRentals(customer, carIds, pickupDate, returnDate);
 
         return "redirect:/home";
+    }
+
+    //history
+    @GetMapping("/history")
+    public String viewHistory(HttpSession session, Model model) {
+        Customer customer = (Customer) session.getAttribute("customer");
+        if (customer == null) {
+            return "redirect:/auth/signin";
+        }
+        List<CarRental> carRentalList = carRentalService.getAllCarRentalByCustomer(customer);
+        model.addAttribute("rentalList", carRentalList);
+        return "view/carRental/viewHistory";
     }
 }

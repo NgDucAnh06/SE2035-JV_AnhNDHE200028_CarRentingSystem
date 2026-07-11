@@ -9,10 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.DuplicateResourceException;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CarProducerServiceImpl implements CarProducerService {
+
     private final CarProducerRepository carProducerRepository;
 
     @Override
@@ -24,7 +27,26 @@ public class CarProducerServiceImpl implements CarProducerService {
     }
 
     @Override
+    public void update(CarProducer carProducer) {
+        CarProducer producer = carProducerRepository.findByProducerName(carProducer.getProducerName());
+        if (producer != null && !producer.getProducerID().equals(carProducer.getProducerID())) {
+            throw new DuplicateResourceException("Producer name already exists!");
+        }
+        carProducerRepository.save(carProducer);
+    }
+
+    @Override
     public CarProducer findByProducerName(String producerName) {
         return carProducerRepository.findByProducerName(producerName);
+    }
+
+    @Override
+    public CarProducer findByProducerID(Integer id) {
+        return carProducerRepository.findByProducerID(id);
+    }
+
+    @Override
+    public List<CarProducer> getAll() {
+        return carProducerRepository.findAll();
     }
 }

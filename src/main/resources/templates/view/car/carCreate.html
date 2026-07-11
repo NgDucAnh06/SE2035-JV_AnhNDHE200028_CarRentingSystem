@@ -16,8 +16,8 @@
                     <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
                 </a>
                 <div>
-                    <h3 class="mb-1 text-dark fw-bold">Create New Car</h3>
-                    <p class="text-muted mb-0">Enter the details of the new vehicle</p>
+                    <h3 class="mb-1 text-dark fw-bold" th:text="${car.carID == null ? 'Create New Car' : 'Update Car'}">Create New Car</h3>
+                    <p class="text-muted mb-0" th:text="${car.carID == null ? 'Enter the details of the new vehicle' : 'Update vehicle details'}">Enter the details of the new vehicle</p>
                 </div>
             </div>
 
@@ -28,7 +28,8 @@
             </div>
 
             <div class="card-modern">
-                <form th:action="@{/car/create}" th:object="${car}" method="post">
+                <form th:action="@{${car.carID == null ? '/car/create' : '/car/update'}}" th:object="${car}" method="post">
+                    <input type="hidden" th:if="${car.carID != null}" th:field="*{carID}" />
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label for="carName" class="form-label-modern">Car Name</label>
@@ -90,7 +91,7 @@
                     <div class="mt-5 d-flex justify-content-end border-top pt-4">
                         <button type="submit" class="btn-primary-modern">
                             <i data-lucide="save" style="width: 18px; height: 18px;"></i>
-                            Save Car
+                            <span th:text="${car.carID == null ? 'Save Car' : 'Update Car'}">Save Car</span>
                         </button>
                     </div>
                 </form>
