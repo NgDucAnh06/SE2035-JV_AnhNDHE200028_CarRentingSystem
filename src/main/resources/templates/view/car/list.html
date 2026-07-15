@@ -66,7 +66,7 @@
                     <td th:text="${car.carModelYear}">2026</td>
                     <td th:text="${car.color}">Black</td>
                     <td th:text="${car.capacity}">4</td>
-                    <td class="fw-bold" th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">$0</td>
+                    <td class="fw-bold" th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
                     <td>
                         <span th:class="'status-badge status-' + ${#strings.toLowerCase(car.status)}" th:text="${car.status}">AVAILABLE</span>
                     </td>

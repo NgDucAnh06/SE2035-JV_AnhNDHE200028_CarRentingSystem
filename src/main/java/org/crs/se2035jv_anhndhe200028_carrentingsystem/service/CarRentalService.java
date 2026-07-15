@@ -1,6 +1,7 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.service;
 
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RentalSummaryDTO;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.SearchReportDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 
@@ -12,4 +13,5 @@ public interface CarRentalService {
     List<CarRental> getAllCarRentalByCustomer(Customer customer);
     List<RentalSummaryDTO> showManagement();
     void updateStatus(Integer id, String status);
+    List<RentalSummaryDTO> showReport(SearchReportDTO searchReportDTO);
 }

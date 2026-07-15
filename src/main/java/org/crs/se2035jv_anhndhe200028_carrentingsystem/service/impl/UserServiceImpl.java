@@ -2,9 +2,10 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequestDTO;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequestDTO;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequestDTO;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.ChangePassRequest;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequest;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequest;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
@@ -14,9 +15,10 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CustomerReposi
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +29,8 @@ public class UserServiceImpl implements UserService {
     private final CustomerRepository customerRepository;
 
     @Override
-    public Account signin(LoginRequestDTO loginRequestDTO) {
-        Account account = accountRepository.findAccountByAccountNameAndPassword(loginRequestDTO.getAccountName(), loginRequestDTO.getPassword());
+    public Account signin(LoginRequest loginRequest) {
+        Account account = accountRepository.findAccountByAccountNameAndPassword(loginRequest.getAccountName(), loginRequest.getPassword());
         if (account == null) {
             throw new BadCredentialsException("Wrong account name or password!");
         }
@@ -36,26 +38,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void signup(RegisterRequestDTO registerRequestDTO) {
+    public void signup(RegisterRequest registerRequest) {
         java.util.Map<String, String> errors = new java.util.HashMap<>();
 
-        if (accountRepository.findAccountByEmail(registerRequestDTO.getEmail()) != null) {
+        if (accountRepository.findAccountByEmail(registerRequest.getEmail()) != null) {
             errors.put("email", "Email already exists!");
         }
 
-        if (accountRepository.findByAccountName(registerRequestDTO.getAccountName()) != null) {
+        if (accountRepository.findByAccountName(registerRequest.getAccountName()) != null) {
             errors.put("accountName", "Account name already exists!");
         }
 
-        if (customerRepository.findCustomerByMobile(registerRequestDTO.getMobile()) != null) {
+        if (customerRepository.findCustomerByMobile(registerRequest.getMobile()) != null) {
             errors.put("mobile", "Mobile already exists!");
         }
 
-        if (customerRepository.findCustomerByIdentityCard(registerRequestDTO.getIdentityCard()) != null) {
+        if (customerRepository.findCustomerByIdentityCard(registerRequest.getIdentityCard()) != null) {
             errors.put("identityCard", "Identity card already exists!");
         }
 
-        if (customerRepository.findCustomerByLicenceNumber(registerRequestDTO.getLicenceNum()) != null) {
+        if (customerRepository.findCustomerByLicenceNumber(registerRequest.getLicenceNum()) != null) {
             errors.put("licenceNum", "Licence number already exists!");
         }
 
@@ -63,49 +65,53 @@ public class UserServiceImpl implements UserService {
             throw new CustomValidationException(errors);
         }
 
-        Account account = new Account();
-        account.setAccountName(registerRequestDTO.getAccountName());
-        account.setEmail(registerRequestDTO.getEmail());
-        account.setRole("customer");
-        account.setPassword(registerRequestDTO.getPassword());
+        Account account = Account.builder()
+                .accountName(registerRequest.getAccountName())
+                .email(registerRequest.getEmail())
+                .role("customer")
+                .password(registerRequest.getPassword())
+                .build();
         
-        Customer customer = new Customer();
-        customer.setAccount(account);
-        customer.setBirthday(registerRequestDTO.getBirthday());
-        customer.setMobile(registerRequestDTO.getMobile());
-        customer.setFullName(registerRequestDTO.getFullName());
-        customer.setIdentityCard(registerRequestDTO.getIdentityCard());
-        customer.setLicenceNumber(registerRequestDTO.getLicenceNum());
-        customer.setLicenceDate(registerRequestDTO.getLicenceDate());
+        Customer customer = Customer.builder()
+                .account(account)
+                .birthday(registerRequest.getBirthday())
+                .mobile(registerRequest.getMobile())
+                .fullName(registerRequest.getFullName())
+                .identityCard(registerRequest.getIdentityCard())
+                .licenceNumber(registerRequest.getLicenceNum())
+                .licenceDate(registerRequest.getLicenceDate())
+                .build();
 
-        account.setCustomer(customer);
+        account = account.toBuilder()
+                .customer(customer)
+                .build();
         accountRepository.save(account);
     }
 
     @Override
-    public void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, HttpSession session) {
+    public void updateProfile(UpdateProfileRequest updateProfileRequest, HttpSession session) {
         Account sessionAccount = (Account) session.getAttribute("account");
         Integer accountId = sessionAccount.getAccountID();
         Integer customerId = sessionAccount.getCustomer().getCustomerID();
 
         java.util.Map<String, String> errors = new java.util.HashMap<>();
 
-        Account checkAccount = accountRepository.findAccountByEmail(updateProfileRequestDTO.getEmail());
+        Account checkAccount = accountRepository.findAccountByEmail(updateProfileRequest.getEmail());
         if (checkAccount != null && !checkAccount.getAccountID().equals(accountId)) {
             errors.put("email", "Email already exists!");
         }
 
-        Customer checkCustomer = customerRepository.findCustomerByMobile(updateProfileRequestDTO.getMobile());
+        Customer checkCustomer = customerRepository.findCustomerByMobile(updateProfileRequest.getMobile());
         if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
             errors.put("mobile", "Mobile already exists!");
         }
 
-        checkCustomer = customerRepository.findCustomerByIdentityCard(updateProfileRequestDTO.getIdentityCard());
+        checkCustomer = customerRepository.findCustomerByIdentityCard(updateProfileRequest.getIdentityCard());
         if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
             errors.put("identityCard", "Identity card already exists!");
         }
 
-        checkCustomer = customerRepository.findCustomerByLicenceNumber(updateProfileRequestDTO.getLicenceNum());
+        checkCustomer = customerRepository.findCustomerByLicenceNumber(updateProfileRequest.getLicenceNum());
         if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
             errors.put("licenceNum", "Licence number already exists!");
         }
@@ -116,15 +122,22 @@ public class UserServiceImpl implements UserService {
 
         Account account = accountRepository.findById(accountId).orElse(sessionAccount);
 
-        account.setEmail(updateProfileRequestDTO.getEmail());
+        account = account.toBuilder()
+                .email(updateProfileRequest.getEmail())
+                .build();
 
         if (account.getCustomer() != null) {
-            account.getCustomer().setBirthday(updateProfileRequestDTO.getBirthday());
-            account.getCustomer().setMobile(updateProfileRequestDTO.getMobile());
-            account.getCustomer().setFullName(updateProfileRequestDTO.getFullName());
-            account.getCustomer().setIdentityCard(updateProfileRequestDTO.getIdentityCard());
-            account.getCustomer().setLicenceNumber(updateProfileRequestDTO.getLicenceNum());
-            account.getCustomer().setLicenceDate(updateProfileRequestDTO.getLicenceDate());
+            Customer updatedCustomer = account.getCustomer().toBuilder()
+                    .birthday(updateProfileRequest.getBirthday())
+                    .mobile(updateProfileRequest.getMobile())
+                    .fullName(updateProfileRequest.getFullName())
+                    .identityCard(updateProfileRequest.getIdentityCard())
+                    .licenceNumber(updateProfileRequest.getLicenceNum())
+                    .licenceDate(updateProfileRequest.getLicenceDate())
+                    .build();
+            account = account.toBuilder()
+                    .customer(updatedCustomer)
+                    .build();
         }
 
         accountRepository.save(account);
@@ -151,6 +164,34 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Integer id) {
         accountRepository.deleteAccountByAccountID(id);
+    }
+
+    @Override
+    public void changePassword(Account account, ChangePassRequest changePassRequest, HttpSession session) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (!changePassRequest.getOldPassword().equals(account.getPassword())) {
+            errors.put("oldPassword", "Old password is incorrect!");
+        }
+
+        if (!changePassRequest.getNewPassword().equals(changePassRequest.getConfirmPassword())) {
+            errors.put("confirmPassword", "Confirm password does not match!");
+        }
+
+        if (changePassRequest.getNewPassword().equals(account.getPassword())) {
+            errors.put("newPassword", "New password must be different from current password!");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new CustomValidationException(errors);
+        }
+
+        account = account.toBuilder()
+                .password(changePassRequest.getNewPassword())
+                .build();
+
+        accountRepository.save(account);
+        session.setAttribute("account", account);
     }
 
 }

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Rental Report</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Analytics</div>
+            <h1 class="page-title">Rental Report</h1>
+            <p class="page-subtitle">Search and filter rental records by customer name, pickup date, or return date.</p>
+        </div>
+        <span class="status-badge status-active"
+              th:text="${report != null ? #lists.size(report) + ' results' : '0 results'}">0 results</span>
+    </div>
+
+    <!-- Search Form -->
+    <div class="surface mb-4">
+        <div class="surface-header">
+            <h5 class="mb-1">Search Filters</h5>
+            <p class="mb-0 text-muted small">Narrow down rentals using any combination of the filters below.</p>
+        </div>
+        <div class="p-3 p-md-4">
+            <form th:action="@{/report/show}" th:object="${searchReportDTO}" method="post">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="fullName" class="form-label fw-semibold">Customer Name</label>
+                        <input type="text" class="form-control" id="fullName" th:field="*{fullName}"
+                               placeholder="e.g. Nguyen Van A" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="pickupDate" class="form-label fw-semibold">Pickup Date</label>
+                        <input type="date" class="form-control" id="pickupDate" th:field="*{pickupDate}" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="returnDate" class="form-label fw-semibold">Return Date</label>
+                        <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}" />
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn-soft-modern flex-grow-1">
+                            <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+                            Search
+                        </button>
+                        <a th:href="@{/report/show}" class="btn-danger-modern d-flex align-items-center justify-content-center"
+                           style="padding: 0.45rem 1rem; text-decoration: none;">
+                            <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                            Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Results Table -->
+    <div class="surface">
+        <div class="surface-header">
+            <h5 class="mb-1">Report Results</h5>
+            <p class="mb-0 text-muted small">Displaying rental records that match your search criteria.</p>
+        </div>
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Customer</th>
+                    <th>Car</th>
+                    <th>Pickup</th>
+                    <th>Return</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="rental, stat: ${report}">
+                    <td th:text="${stat.count}">1</td>
+                    <td class="fw-bold text-dark" th:text="${rental.fullName}">Customer</td>
+                    <td th:text="${rental.carName}">Car</td>
+                    <td th:text="${#temporals.format(rental.pickupDate, 'dd/MM/yyyy')}">01/01/2026</td>
+                    <td th:text="${#temporals.format(rental.returnDate, 'dd/MM/yyyy')}">02/01/2026</td>
+                    <td class="fw-bold" th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
+                    <td>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}" th:text="${rental.status}">ACTIVE</span>
+                    </td>
+                </tr>
+                <tr th:if="${report == null or #lists.isEmpty(report)}">
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="file-search"></i></div>
+                            <h5>No matching records</h5>
+                            <p class="mb-0">Try adjusting your search filters to find rental records.</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -3,6 +3,7 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RentalSummaryDTO;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.SearchReportDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
@@ -55,18 +56,20 @@ public class CarRentalServiceImpl implements CarRentalService {
         for (Integer carId : carIds) {
             Car car = carRepository.findById(carId).orElse(null);
             if (car != null && "AVAILABLE".equals(car.getStatus())) {
-                CarRental rental = new CarRental();
-                rental.setCustomer(customer);
-                rental.setCar(car);
-                rental.setPickupDate(pickupDate);
-                rental.setReturnDate(returnDate);
-
                 long days = ChronoUnit.DAYS.between(pickupDate, returnDate);
                 if (days <= 0) {
                     days = 1;
                 }
                 BigDecimal totalRentalPrice = car.getRentPrice().multiply(BigDecimal.valueOf(days));
-                rental.setRentPrice(totalRentalPrice);
+
+                CarRental rental = CarRental.builder()
+                        .customer(customer)
+                        .car(car)
+                        .pickupDate(pickupDate)
+                        .returnDate(returnDate)
+                        .rentPrice(totalRentalPrice)
+                        .status("PENDING")
+                        .build();
 
                 this.save(rental);
             }
@@ -95,5 +98,11 @@ public class CarRentalServiceImpl implements CarRentalService {
                 carRepository.save(car);
             }
         }
+    }
+
+    @Override
+    public List<RentalSummaryDTO> showReport(SearchReportDTO searchReportDTO) {
+        return carRentalRepository.findCarRentalReport(searchReportDTO.getPickupDate(), searchReportDTO.getReturnDate(),
+                searchReportDTO.getFullName());
     }
 }

@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginRequestDTO {
+public class LoginRequest {
     @NotBlank(message = "Account name is required!")
     private String accountName;
 

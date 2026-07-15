@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class RegisterRequestDTO {
+public class RegisterRequest {
     @NotBlank(message = "Fullname is required!")
     private String fullName;
 

@@ -51,7 +51,7 @@
                         <td th:text="${car.producer != null ? car.producer.producerName : 'N/A'}">Producer</td>
                         <td th:text="${car.color}">Black</td>
                         <td th:text="${car.capacity}">4</td>
-                        <td class="fw-bold" th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' $'">0 $</td>
+                        <td class="fw-bold" th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
                         <td class="text-end">
                             <button type="button" class="btn-soft-modern btn-sm"
                                     th:attr="data-id=${car.carID}, data-name=${car.carName}, data-price=${car.rentPrice}"
@@ -101,7 +101,7 @@
                         <input type="date" id="returnDate" name="returnDate" class="form-control-modern" required onchange="updateTotalPriceDisplay()">
                     </div>
 
-                    <div class="total-price mb-4" id="totalPriceDisplay">Total Price: $0.00</div>
+                    <div class="total-price mb-4" id="totalPriceDisplay">Total Price: 0.00 VNĐ</div>
 
                     <button type="submit" class="btn-primary-modern w-100">
                         Submit rental order
@@ -132,7 +132,7 @@
 
             var finalTotal = basePricePerDay * days;
             var daysText = days > 0 ? ' (' + days + ' days)' : '';
-            document.getElementById('totalPriceDisplay').innerText = 'Total Price: $' + finalTotal.toFixed(2) + daysText;
+            document.getElementById('totalPriceDisplay').innerText = 'Total: ' + new Intl.NumberFormat('vi-VN').format(finalTotal) + ' VNĐ' + daysText;
         }
 
         function selectCar(button) {
@@ -158,7 +158,7 @@
             }
 
             var li = document.createElement('li');
-            li.innerText = carName + ' - $' + carPrice.toFixed(2) + ' / day';
+            li.innerText = carName + ' - ' + new Intl.NumberFormat('vi-VN').format(carPrice) + ' VNĐ / day';
             list.appendChild(li);
 
             var hiddenInput = document.createElement('input');

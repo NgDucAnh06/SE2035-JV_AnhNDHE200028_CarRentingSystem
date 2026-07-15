@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class UpdateProfileRequestDTO {
+public class UpdateProfileRequest {
     @NotBlank(message = "Fullname is required!")
     private String fullName;
 
