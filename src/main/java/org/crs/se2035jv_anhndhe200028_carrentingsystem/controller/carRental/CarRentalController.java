@@ -7,12 +7,17 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarRentalService;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,7 +49,7 @@ public class CarRentalController {
             @RequestParam(value = "carIds", required = false) List<Integer> carIds,
             @RequestParam("pickupDate") LocalDate pickupDate,
             @RequestParam("returnDate") LocalDate returnDate,
-            HttpSession session) {
+            HttpSession session, RedirectAttributes redirectAttributes) {
 
         Customer customer = (Customer) session.getAttribute("customer");
         if (customer == null) {
@@ -56,19 +61,31 @@ public class CarRentalController {
         }
 
         carRentalService.createRentals(customer, carIds, pickupDate, returnDate);
-
-        return "redirect:/home";
+        redirectAttributes.addFlashAttribute("successMessage", "Rented car successfully!");
+        return "redirect:/carRental/history";
     }
 
     //history
     @GetMapping("/history")
-    public String viewHistory(HttpSession session, Model model) {
+    public String viewHistory(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              HttpSession session, Model model) {
         Customer customer = (Customer) session.getAttribute("customer");
         if (customer == null) {
             return "redirect:/auth/signin";
         }
-        List<CarRental> carRentalList = carRentalService.getAllCarRentalByCustomer(customer);
-        model.addAttribute("rentalList", carRentalList);
+
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), 20);
+
+        Pageable pageable = PageRequest.of(
+                safePage,
+                safeSize,
+                Sort.by("carRenID").descending()
+        );
+
+        Page<CarRental> rentalPage = carRentalService.getCarRentalPageByCustomer(customer, pageable);
+        model.addAttribute("rentalPage", rentalPage);
         return "view/carRental/history";
     }
 }

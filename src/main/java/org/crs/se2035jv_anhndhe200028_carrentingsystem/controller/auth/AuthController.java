@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
@@ -60,17 +61,25 @@ public class AuthController {
 
     @PostMapping("/signup")
     public String processSignup(@Valid @ModelAttribute("registerDTO") RegisterRequest registerRequest,
-                                BindingResult bindingResult) {
+                                BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "view/auth/signup";
         }
 
         try {
             userService.signup(registerRequest);
+            redirectAttributes.addFlashAttribute("successMessage", "Account is created successfully!");
             return "redirect:/auth/signin";
         } catch (CustomValidationException ex) {
             ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
             return "view/auth/signup";
         }
+    }
+
+    //logout
+    @PostMapping("/logout")
+    public String signout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/auth/signin";
     }
 }

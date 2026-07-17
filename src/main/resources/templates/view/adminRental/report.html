@@ -26,7 +26,7 @@
             <p class="mb-0 text-muted small">Narrow down rentals using any combination of the filters below.</p>
         </div>
         <div class="p-3 p-md-4">
-            <form th:action="@{/report/show}" th:object="${searchReportDTO}" method="post">
+            <form th:action="@{/report/show}" th:object="${searchReportDTO}" method="get">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label for="fullName" class="form-label fw-semibold">Customer Name</label>

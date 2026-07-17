@@ -56,7 +56,7 @@ public class AccountController {
 
         try {
             userService.updateProfile(updateProfileDTO, session);
-            return "redirect:/home"; 
+            return "redirect:/account/updateProfile";
         } catch (CustomValidationException ex) {
             ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
             return "view/account/update";
@@ -80,7 +80,7 @@ public class AccountController {
 
         try {
             userService.changePassword(account, changePassRequest, session);
-            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Password is updated successfully!");
             return "redirect:/account/changePassword";
         } catch (CustomValidationException ex) {
             ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));

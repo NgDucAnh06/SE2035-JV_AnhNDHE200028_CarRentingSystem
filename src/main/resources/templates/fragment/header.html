@@ -26,10 +26,12 @@
                         <span class="nav-link fw-semibold text-secondary" th:text="${session.account.accountName}">Account</span>
                     </li>
                     <li class="nav-item" th:if="${session.account != null}">
-                        <a class="btn-outline-modern" th:href="@{/logout}">
-                            <i data-lucide="log-out" style="width: 17px; height: 17px;"></i>
-                            Log out
-                        </a>
+                        <form th:action="@{/auth/logout}" method="post">
+                            <button type="submit" class="btn-outline-modern">
+                                <i data-lucide="log-out" style="width: 17px; height: 17px;"></i>
+                                Log out
+                            </button>
+                        </form>
                     </li>
                     <li class="nav-item" th:if="${session.account == null}">
                         <a class="btn-outline-modern" th:href="@{/auth/signin}">Sign in</a>

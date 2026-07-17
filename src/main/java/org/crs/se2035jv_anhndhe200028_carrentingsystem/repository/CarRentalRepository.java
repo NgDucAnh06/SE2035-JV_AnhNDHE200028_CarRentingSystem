@@ -3,16 +3,17 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.repository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RentalSummaryDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
-    List<CarRental> getAllByCustomerOrderByCarRenIDDesc(Customer customer);
+    Page<CarRental> findAllByCustomer(Customer customer, Pageable pageable);
 
     @Query("SELECT cr.carRenID AS carRenID, ct.fullName AS fullName, c.carName AS carName, " +
             "cr.pickupDate AS pickupDate, cr.returnDate AS returnDate, " +

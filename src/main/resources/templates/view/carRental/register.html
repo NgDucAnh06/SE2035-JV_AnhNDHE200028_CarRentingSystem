@@ -27,86 +27,123 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="car-picker">
-        <section class="surface">
-            <div class="surface-header">
-                <h5 class="mb-1">Available cars</h5>
-                <p class="mb-0 text-muted small">Pick the vehicles you want to include in this rental.</p>
+    <div class="rental-booking-layout">
+        <section class="surface rental-fleet-panel">
+            <div class="surface-header rental-section-header">
+                <div>
+                    <h5 class="mb-1">Available cars</h5>
+                    <p class="mb-0 text-muted small">Choose one or more vehicles for your rental.</p>
+                </div>
+                <span class="rental-count-badge" id="visibleCarCount"
+                      th:text="${cars != null ? #lists.size(cars) + ' available' : '0 available'}">0 available</span>
             </div>
-            <div class="table-responsive">
-                <table class="table-modern">
-                    <thead>
-                    <tr>
-                        <th>Car</th>
-                        <th>Producer</th>
-                        <th>Color</th>
-                        <th>Seats</th>
-                        <th>Price/day</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="car: ${cars}">
-                        <td class="fw-bold text-dark" th:text="${car.carName}">Car</td>
-                        <td th:text="${car.producer != null ? car.producer.producerName : 'N/A'}">Producer</td>
-                        <td th:text="${car.color}">Black</td>
-                        <td th:text="${car.capacity}">4</td>
-                        <td class="fw-bold" th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                        <td class="text-end">
-                            <button type="button" class="btn-soft-modern btn-sm"
-                                    th:attr="data-id=${car.carID}, data-name=${car.carName}, data-price=${car.rentPrice}"
-                                    onclick="selectCar(this)">
-                                <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
-                                Add
-                            </button>
-                        </td>
-                    </tr>
-                    <tr th:if="${cars == null or #lists.isEmpty(cars)}">
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <div class="empty-state-icon"><i data-lucide="car-front"></i></div>
-                                <h5>No cars available</h5>
-                                <p class="mb-0">Please check again later when the fleet is available.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+
+            <div class="rental-search-toolbar" th:if="${cars != null and !#lists.isEmpty(cars)}">
+                <div class="rental-search-input">
+                    <i data-lucide="search" aria-hidden="true"></i>
+                    <input type="search" id="carSearch" placeholder="Search by car, producer, color or seats..."
+                           aria-label="Search available cars" autocomplete="off" oninput="filterCars()">
+                    <button type="button" id="clearCarSearch" class="rental-search-clear"
+                            aria-label="Clear car search" onclick="clearCarSearch()" hidden>
+                        <i data-lucide="x" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="rental-car-grid" th:if="${cars != null and !#lists.isEmpty(cars)}">
+                <article class="rental-car-card" th:each="car: ${cars}"
+                         th:attr="data-search=${car.carName + ' ' + (car.producer != null ? car.producer.producerName : '') + ' ' + car.color + ' ' + car.capacity}">
+                    <div class="rental-car-card-header">
+                        <span class="rental-car-icon"><i data-lucide="car-front"></i></span>
+                        <div class="min-w-0">
+                            <h6 class="rental-car-name" th:text="${car.carName}">Car name</h6>
+                            <span class="rental-producer"
+                                  th:text="${car.producer != null ? car.producer.producerName : 'Unknown producer'}">Producer</span>
+                        </div>
+                    </div>
+
+                    <div class="rental-car-specs">
+                        <span><i data-lucide="palette"></i><span th:text="${car.color}">Color</span></span>
+                        <span><i data-lucide="users-round"></i><span th:text="${car.capacity} + ' seats'">4 seats</span></span>
+                    </div>
+
+                    <div class="rental-car-card-footer">
+                        <div class="rental-car-price">
+                            <strong th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</strong>
+                            <span>per day</span>
+                        </div>
+                        <button type="button" class="btn-soft-modern btn-sm car-select-button"
+                                th:attr="data-id=${car.carID}, data-name=${car.carName}, data-price=${car.rentPrice}"
+                                onclick="toggleCar(this)">
+                            <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                            Add car
+                        </button>
+                    </div>
+                </article>
+            </div>
+
+            <div id="noCarSearchResults" class="empty-state rental-search-empty" hidden>
+                <div class="empty-state-icon"><i data-lucide="search-x"></i></div>
+                <h5>No matching cars</h5>
+                <p class="mb-0">Try another car name, producer, color, or seat count.</p>
+            </div>
+
+            <div class="empty-state" th:if="${cars == null or #lists.isEmpty(cars)}">
+                <div class="empty-state-icon"><i data-lucide="car-front"></i></div>
+                <h5>No cars available</h5>
+                <p class="mb-0">Please check again later when the fleet is available.</p>
             </div>
         </section>
 
-        <aside class="surface">
-            <div class="surface-header">
-                <h5 class="mb-1">Rental details</h5>
-                <p class="mb-0 text-muted small">Selected cars and rental dates.</p>
+        <aside class="surface rental-summary-card">
+            <div class="surface-header rental-section-header">
+                <div>
+                    <h5 class="mb-1">Rental details</h5>
+                    <p class="mb-0 text-muted small">Review your selection and dates.</p>
+                </div>
+                <span class="selected-count-badge" id="selectedCarCount">0</span>
             </div>
             <div class="surface-body">
                 <form th:action="@{/carRental/rentalRegister}" method="post" id="rentalForm">
                     <div class="mb-4">
-                        <label class="form-label-modern">Selected Cars</label>
+                        <label class="form-label-modern">Selected cars</label>
                         <ul id="selectedCarsList" class="selected-car-list">
-                            <li class="text-muted">No cars selected yet.</li>
+                            <li class="selected-car-empty">
+                                <i data-lucide="mouse-pointer-click"></i>
+                                <span>Select a car from the list to get started.</span>
+                            </li>
                         </ul>
                     </div>
 
                     <div id="hiddenCarInputs"></div>
 
-                    <div class="mb-3">
-                        <label class="form-label-modern" for="pickupDate">Pickup Date</label>
-                        <input type="date" id="pickupDate" name="pickupDate" class="form-control-modern" required onchange="updateTotalPriceDisplay()">
+                    <div class="rental-date-fields">
+                        <div>
+                            <label class="form-label-modern" for="pickupDate">Pickup date</label>
+                            <input type="date" id="pickupDate" name="pickupDate" class="form-control-modern" required
+                                   onchange="handlePickupDateChange()">
+                        </div>
+                        <div>
+                            <label class="form-label-modern" for="returnDate">Return date</label>
+                            <input type="date" id="returnDate" name="returnDate" class="form-control-modern" required
+                                   onchange="updateTotalPriceDisplay()">
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="form-label-modern" for="returnDate">Return Date</label>
-                        <input type="date" id="returnDate" name="returnDate" class="form-control-modern" required onchange="updateTotalPriceDisplay()">
+                    <div class="rental-total-card mb-4">
+                        <span>Estimated total</span>
+                        <strong id="totalPriceAmount">0 VNĐ</strong>
+                        <small id="rentalDurationText">Select rental dates to calculate the total.</small>
                     </div>
-
-                    <div class="total-price mb-4" id="totalPriceDisplay">Total Price: 0.00 VNĐ</div>
 
                     <button type="submit" class="btn-primary-modern w-100">
                         Submit rental order
                         <i data-lucide="send" style="width: 18px; height: 18px;"></i>
                     </button>
+                    <p class="rental-submit-note">
+                        <i data-lucide="shield-check"></i>
+                        Review your vehicles and dates before submitting.
+                    </p>
                 </form>
             </div>
         </aside>
@@ -114,7 +151,46 @@
 
     <script>
         var selectedCars = [];
-        var basePricePerDay = 0;
+
+        function normalizeSearchText(value) {
+            return (value || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .trim();
+        }
+
+        function filterCars() {
+            var searchInput = document.getElementById('carSearch');
+            var keyword = normalizeSearchText(searchInput.value);
+            var visibleCount = 0;
+
+            document.querySelectorAll('.rental-car-card').forEach(function (card) {
+                var matches = normalizeSearchText(card.getAttribute('data-search')).includes(keyword);
+                card.hidden = !matches;
+                if (matches) {
+                    visibleCount++;
+                }
+            });
+
+            document.getElementById('visibleCarCount').innerText = visibleCount + ' available';
+            document.getElementById('noCarSearchResults').hidden = visibleCount !== 0;
+            document.getElementById('clearCarSearch').hidden = searchInput.value.length === 0;
+        }
+
+        function clearCarSearch() {
+            var searchInput = document.getElementById('carSearch');
+            searchInput.value = '';
+            filterCars();
+            searchInput.focus();
+        }
+
+        function getBasePricePerDay() {
+            return selectedCars.reduce(function (total, car) {
+                return total + car.price;
+            }, 0);
+        }
 
         function updateTotalPriceDisplay() {
             var pickupDateStr = document.getElementById('pickupDate').value;
@@ -130,46 +206,110 @@
                 }
             }
 
-            var finalTotal = basePricePerDay * days;
-            var daysText = days > 0 ? ' (' + days + ' days)' : '';
-            document.getElementById('totalPriceDisplay').innerText = 'Total: ' + new Intl.NumberFormat('vi-VN').format(finalTotal) + ' VNĐ' + daysText;
+            var finalTotal = getBasePricePerDay() * days;
+            document.getElementById('totalPriceAmount').innerText = new Intl.NumberFormat('vi-VN').format(finalTotal) + ' VNĐ';
+            document.getElementById('rentalDurationText').innerText = days > 0
+                ? days + (days === 1 ? ' rental day' : ' rental days') + ' · ' + selectedCars.length + (selectedCars.length === 1 ? ' car' : ' cars')
+                : 'Select valid rental dates to calculate the total.';
         }
 
-        function selectCar(button) {
+        function toggleCar(button) {
             var carId = button.getAttribute('data-id');
             var carName = button.getAttribute('data-name');
             var carPrice = parseFloat(button.getAttribute('data-price'));
+            var selectedIndex = selectedCars.findIndex(function (car) {
+                return car.id === carId;
+            });
 
-            if (selectedCars.indexOf(carId) !== -1) {
-                return;
+            if (selectedIndex !== -1) {
+                selectedCars.splice(selectedIndex, 1);
+            } else {
+                selectedCars.push({id: carId, name: carName, price: carPrice});
             }
 
-            selectedCars.push(carId);
-            basePricePerDay += carPrice;
+            renderSelectedCars();
+        }
 
-            button.innerHTML = '<i data-lucide="check" style="width: 16px; height: 16px;"></i> Added';
-            button.disabled = true;
-            button.classList.remove('btn-soft-modern');
-            button.classList.add('btn-outline-modern');
+        function removeCar(carId) {
+            selectedCars = selectedCars.filter(function (car) {
+                return car.id !== carId;
+            });
+            renderSelectedCars();
+        }
 
+        function renderSelectedCars() {
             var list = document.getElementById('selectedCarsList');
-            if (selectedCars.length === 1) {
-                list.innerHTML = '';
+            var hiddenInputs = document.getElementById('hiddenCarInputs');
+            list.innerHTML = '';
+            hiddenInputs.innerHTML = '';
+
+            if (selectedCars.length === 0) {
+                list.innerHTML = '<li class="selected-car-empty"><i data-lucide="mouse-pointer-click"></i><span>Select a car from the list to get started.</span></li>';
+            } else {
+                selectedCars.forEach(function (car) {
+                    var li = document.createElement('li');
+                    li.className = 'selected-car-item';
+
+                    var details = document.createElement('div');
+                    var name = document.createElement('strong');
+                    var price = document.createElement('span');
+                    name.innerText = car.name;
+                    price.innerText = new Intl.NumberFormat('vi-VN').format(car.price) + ' VNĐ / day';
+                    details.appendChild(name);
+                    details.appendChild(price);
+
+                    var removeButton = document.createElement('button');
+                    removeButton.type = 'button';
+                    removeButton.className = 'selected-car-remove';
+                    removeButton.setAttribute('aria-label', 'Remove ' + car.name);
+                    removeButton.innerHTML = '<i data-lucide="x"></i>';
+                    removeButton.onclick = function () {
+                        removeCar(car.id);
+                    };
+
+                    li.appendChild(details);
+                    li.appendChild(removeButton);
+                    list.appendChild(li);
+
+                    var hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'carIds';
+                    hiddenInput.value = car.id;
+                    hiddenInputs.appendChild(hiddenInput);
+                });
             }
 
-            var li = document.createElement('li');
-            li.innerText = carName + ' - ' + new Intl.NumberFormat('vi-VN').format(carPrice) + ' VNĐ / day';
-            list.appendChild(li);
+            document.querySelectorAll('.car-select-button').forEach(function (button) {
+                var isSelected = selectedCars.some(function (car) {
+                    return car.id === button.getAttribute('data-id');
+                });
+                button.classList.toggle('btn-soft-modern', !isSelected);
+                button.classList.toggle('btn-outline-modern', isSelected);
+                button.innerHTML = isSelected
+                    ? '<i data-lucide="check"></i> Selected'
+                    : '<i data-lucide="plus"></i> Add car';
+            });
 
-            var hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'carIds';
-            hiddenInput.value = carId;
-            document.getElementById('hiddenCarInputs').appendChild(hiddenInput);
-
+            document.getElementById('selectedCarCount').innerText = selectedCars.length;
             updateTotalPriceDisplay();
             lucide.createIcons();
         }
+
+        function handlePickupDateChange() {
+            var pickupDate = document.getElementById('pickupDate').value;
+            var returnDateInput = document.getElementById('returnDate');
+            returnDateInput.min = pickupDate;
+            if (returnDateInput.value && returnDateInput.value < pickupDate) {
+                returnDateInput.value = '';
+            }
+            updateTotalPriceDisplay();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('pickupDate').min = today;
+            document.getElementById('returnDate').min = today;
+        });
     </script>
 </main>
 </body>

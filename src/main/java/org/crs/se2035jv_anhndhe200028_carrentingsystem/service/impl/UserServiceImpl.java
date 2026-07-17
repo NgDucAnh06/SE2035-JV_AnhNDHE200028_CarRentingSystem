@@ -13,6 +13,7 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidatio
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.AccountRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CustomerRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.utility.InputStandization;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,9 +83,7 @@ public class UserServiceImpl implements UserService {
                 .licenceDate(registerRequest.getLicenceDate())
                 .build();
 
-        account = account.toBuilder()
-                .customer(customer)
-                .build();
+        account.setCustomer(customer);
         accountRepository.save(account);
     }
 
@@ -94,7 +93,7 @@ public class UserServiceImpl implements UserService {
         Integer accountId = sessionAccount.getAccountID();
         Integer customerId = sessionAccount.getCustomer().getCustomerID();
 
-        java.util.Map<String, String> errors = new java.util.HashMap<>();
+        Map<String, String> errors = new HashMap<>();
 
         Account checkAccount = accountRepository.findAccountByEmail(updateProfileRequest.getEmail());
         if (checkAccount != null && !checkAccount.getAccountID().equals(accountId)) {
@@ -121,7 +120,6 @@ public class UserServiceImpl implements UserService {
         }
 
         Account account = accountRepository.findById(accountId).orElse(sessionAccount);
-
         account = account.toBuilder()
                 .email(updateProfileRequest.getEmail())
                 .build();
@@ -130,7 +128,7 @@ public class UserServiceImpl implements UserService {
             Customer updatedCustomer = account.getCustomer().toBuilder()
                     .birthday(updateProfileRequest.getBirthday())
                     .mobile(updateProfileRequest.getMobile())
-                    .fullName(updateProfileRequest.getFullName())
+                    .fullName(InputStandization.formatName(updateProfileRequest.getFullName()))
                     .identityCard(updateProfileRequest.getIdentityCard())
                     .licenceNumber(updateProfileRequest.getLicenceNum())
                     .licenceDate(updateProfileRequest.getLicenceDate())

@@ -10,6 +10,8 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarRentalService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +45,8 @@ public class CarRentalServiceImpl implements CarRentalService {
     }
 
     @Override
-    public List<CarRental> getAllCarRentalByCustomer(Customer customer) {
-        List<CarRental> rentalList = carRentalRepository.getAllByCustomerOrderByCarRenIDDesc(customer);
-        return rentalList;
+    public Page<CarRental> getCarRentalPageByCustomer(Customer customer, Pageable pageable) {
+        return carRentalRepository.findAllByCustomer(customer, pageable);
     }
 
     @Override
@@ -61,7 +62,6 @@ public class CarRentalServiceImpl implements CarRentalService {
                     days = 1;
                 }
                 BigDecimal totalRentalPrice = car.getRentPrice().multiply(BigDecimal.valueOf(days));
-
                 CarRental rental = CarRental.builder()
                         .customer(customer)
                         .car(car)
@@ -70,7 +70,8 @@ public class CarRentalServiceImpl implements CarRentalService {
                         .rentPrice(totalRentalPrice)
                         .status("PENDING")
                         .build();
-
+                car.setStatus("RENTED");
+                carRepository.save(car);
                 this.save(rental);
             }
         }

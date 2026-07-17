@@ -29,9 +29,11 @@ public class RegisterRequest {
     private LocalDate birthday;
 
     @NotBlank(message = "Identity card is required!")
+    @Pattern(regexp = "^0[0-9]{11}$", message = "Invalid format!")
     private String identityCard;
 
     @NotBlank(message = "Licence number is required!")
+    @Pattern(regexp = "^0[0-9]{11}$", message = "Invalid format!")
     private String licenceNum;
 
     @NotNull(message = "Licence date is required!")

@@ -9,7 +9,6 @@
 </head>
 <body>
 <main layout:fragment="content">
-    <!-- Welcome header -->
     <div class="page-header">
         <div>
             <div class="page-eyebrow">Dashboard</div>
@@ -19,13 +18,8 @@
             </h1>
             <p class="page-subtitle">Manage your rentals, check your history, or keep profile information ready for your next booking.</p>
         </div>
-        <a th:href="@{/carRental/rentalRegister}" class="btn-primary-modern">
-            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
-            New rental
-        </a>
     </div>
 
-    <!-- Quick-action cards -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-lg-4">
             <a th:href="@{/carRental/rentalRegister}" class="card-modern d-flex flex-column text-decoration-none h-100" style="padding: 1.5rem;">
@@ -80,9 +74,8 @@
         </div>
     </div>
 
-    <!-- Info row -->
     <div class="row g-3">
-        <div class="col-lg-7">
+        <div class="col-lg-4">
             <div class="surface h-100">
                 <div class="surface-header">
                     <h5 class="mb-1">How renting works</h5>
@@ -119,34 +112,65 @@
             </div>
         </div>
 
-        <div class="col-lg-5">
+        <div class="col-lg-8">
             <div class="surface h-100">
-                <div class="surface-header">
-                    <h5 class="mb-1">Account information</h5>
-                    <p class="mb-0 text-muted small">Your current session details.</p>
-                </div>
-                <div class="surface-body">
-                    <div class="detail-list">
-                        <div class="detail-item">
-                            <div class="detail-label">Username</div>
-                            <div class="detail-value" th:text="${session.account != null ? session.account.accountName : 'N/A'}">username</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value" th:text="${session.account != null ? session.account.email : 'N/A'}">email@example.com</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Full name</div>
-                            <div class="detail-value" th:text="${session.customer != null ? session.customer.fullName : 'Profile not set'}">Full name</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Profile status</div>
-                            <div class="detail-value">
-                                <span th:if="${session.customer != null}" class="status-badge status-available">Complete</span>
-                                <span th:if="${session.customer == null}" class="status-badge status-pending">Incomplete — <a th:href="@{/account/updateProfile}" class="text-decoration-none">Update now</a></span>
-                            </div>
-                        </div>
+                <div class="surface-header d-flex align-items-center justify-content-between gap-3">
+                    <div>
+                        <h5 class="mb-1">Car list</h5>
+                        <p class="mb-0 text-muted small">Available cars ready for your next rental.</p>
                     </div>
+                    <span class="status-badge status-available"
+                          th:text="${cars != null ? #lists.size(cars) + ' available' : '0 available'}">0 available</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table-modern">
+                        <thead>
+                        <tr>
+                            <th>Car</th>
+                            <th>Producer</th>
+                            <th>Seats</th>
+                            <th>Price/day</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="car : ${cars}">
+                            <td>
+                                <div class="fw-bold text-dark" th:text="${car.carName}">Car name</div>
+                                <div class="text-muted small">
+                                    <span th:text="${car.carModelYear}">2026</span>
+                                    <span> · </span>
+                                    <span th:text="${car.color}">Black</span>
+                                </div>
+                            </td>
+                            <td th:text="${car.producer != null ? car.producer.producerName : 'N/A'}">Producer</td>
+                            <td th:text="${car.capacity}">4</td>
+                            <td class="fw-bold text-nowrap"
+                                th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
+                            <td class="text-end">
+                                <a class="btn-soft-modern btn-sm" th:href="@{/carRental/rentalRegister}">
+                                    Rent
+                                    <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${cars == null or #lists.isEmpty(cars)}">
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon"><i data-lucide="car-front"></i></div>
+                                    <h5>No cars available</h5>
+                                    <p class="mb-0">Please check again later when the fleet is available.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="surface-body border-top d-flex justify-content-end">
+                    <a th:href="@{/carRental/rentalRegister}" class="btn-outline-modern btn-sm">
+                        View all available cars
+                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                    </a>
                 </div>
             </div>
         </div>
