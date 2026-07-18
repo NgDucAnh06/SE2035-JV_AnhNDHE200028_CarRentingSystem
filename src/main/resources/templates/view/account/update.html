@@ -52,7 +52,7 @@
                         <div th:if="${#fields.hasErrors('mobile')}" th:errors="*{mobile}" class="field-error"></div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label-modern" for="birthday">Birthday (MM/dd/yyyy)</label>
+                        <label class="form-label-modern" for="birthday">Birthday (dd/MM/yyyy)</label>
                         <input type="date" id="birthday" th:field="*{birthday}" class="form-control-modern">
                         <div th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}" class="field-error"></div>
                     </div>

@@ -1,9 +1,17 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarProducer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarProducerRepository;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRepository;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.ReviewRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarProducerService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +25,9 @@ import java.util.List;
 public class CarProducerServiceImpl implements CarProducerService {
 
     private final CarProducerRepository carProducerRepository;
+    private final CarRepository carRepository;
+    private final CarRentalRepository carRentalRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public void save(CarProducer carProducer) {
@@ -48,5 +59,46 @@ public class CarProducerServiceImpl implements CarProducerService {
     @Override
     public List<CarProducer> getAll() {
         return carProducerRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CarProducer> searchProducersByName(String keyword, Pageable pageable) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        return carProducerRepository.findByProducerNameContainingIgnoreCase(normalizedKeyword, pageable);
+    }
+
+    @Override
+    public void deleteProducer(Integer id) {
+        CarProducer producer = carProducerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Producer not found."));
+        List<Car> cars = carRepository.findAllByProducer(producer);
+        List<CarRental> rentals = cars.isEmpty()
+                ? List.of()
+                : carRentalRepository.findAllByCarIn(cars);
+
+        if (rentals.stream().anyMatch(this::isActiveRental)) {
+            throw new IllegalStateException(
+                    "Cannot delete this producer because one or more cars are waiting for pickup or currently renting."
+            );
+        }
+
+        if (!rentals.isEmpty()) {
+            reviewRepository.deleteAll(reviewRepository.findByCarRentalIn(rentals));
+            reviewRepository.flush();
+            carRentalRepository.deleteAll(rentals);
+            carRentalRepository.flush();
+        }
+
+        if (!cars.isEmpty()) {
+            carRepository.deleteAll(cars);
+            carRepository.flush();
+        }
+        carProducerRepository.delete(producer);
+    }
+
+    private boolean isActiveRental(CarRental rental) {
+        return RentalStatus.WAITING_FOR_PICKUP.name().equals(rental.getStatus())
+                || RentalStatus.RENTING.name().equals(rental.getStatus());
     }
 }

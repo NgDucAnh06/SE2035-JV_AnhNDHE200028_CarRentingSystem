@@ -120,9 +120,23 @@
                         <p class="mb-0 text-muted small">Available cars ready for your next rental.</p>
                     </div>
                     <span class="status-badge status-available"
-                          th:text="${cars != null ? #lists.size(cars) + ' available' : '0 available'}">0 available</span>
+                          th:text="${carPage != null ? carPage.totalElements + ' available' : '0 available'}">0 available</span>
                 </div>
-                <div class="table-responsive">
+                <div class="px-4 py-3 border-bottom">
+                    <form th:action="@{/home}" method="get" class="d-flex flex-column flex-sm-row gap-2">
+                        <div class="position-relative flex-grow-1">
+                            <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted"
+                               style="left: 0.85rem; width: 17px; height: 17px;"></i>
+                            <input type="search" name="keyword" th:value="${keyword}" class="form-control-modern"
+                                   style="padding-left: 2.5rem;" placeholder="Search by car, producer or color..."
+                                   aria-label="Search available cars">
+                        </div>
+                        <button type="submit" class="btn-primary-modern">Search</button>
+                        <a th:if="${keyword != null and !keyword.isEmpty()}" th:href="@{/home}"
+                           class="btn-outline-modern">Clear</a>
+                    </form>
+                </div>
+                <div class="table-responsive" th:if="${carPage != null and !carPage.empty}">
                     <table class="table-modern">
                         <thead>
                         <tr>
@@ -134,7 +148,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="car : ${cars}">
+                        <tr th:each="car : ${carPage.content}">
                             <td>
                                 <div class="fw-bold text-dark" th:text="${car.carName}">Car name</div>
                                 <div class="text-muted small">
@@ -148,29 +162,46 @@
                             <td class="fw-bold text-nowrap"
                                 th:text="${#numbers.formatDecimal(car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
                             <td class="text-end">
-                                <a class="btn-soft-modern btn-sm" th:href="@{/carRental/rentalRegister}">
+                                <a class="btn-soft-modern btn-sm"
+                                   th:href="@{/carRental/rentalRegister(selectedCarId=${car.carID})}">
                                     Rent
                                     <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
                                 </a>
                             </td>
                         </tr>
-                        <tr th:if="${cars == null or #lists.isEmpty(cars)}">
-                            <td colspan="5">
-                                <div class="empty-state">
-                                    <div class="empty-state-icon"><i data-lucide="car-front"></i></div>
-                                    <h5>No cars available</h5>
-                                    <p class="mb-0">Please check again later when the fleet is available.</p>
-                                </div>
-                            </td>
-                        </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="surface-body border-top d-flex justify-content-end">
-                    <a th:href="@{/carRental/rentalRegister}" class="btn-outline-modern btn-sm">
-                        View all available cars
-                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
-                    </a>
+                <div th:if="${carPage == null or carPage.empty}" class="empty-state">
+                    <div class="empty-state-icon"><i data-lucide="search-x"></i></div>
+                    <h5>No matching cars</h5>
+                    <p class="mb-0">Try another car name, producer, or color.</p>
+                </div>
+                <div th:if="${carPage != null and carPage.totalPages > 1}"
+                     class="d-flex align-items-center justify-content-between gap-3 px-4 py-3 border-top">
+                    <p class="mb-0 text-muted small"
+                       th:text="|Page ${carPage.number + 1} of ${carPage.totalPages}|">Page 1 of 1</p>
+                    <nav aria-label="Available car pagination">
+                        <ul class="pagination mb-0">
+                            <li class="page-item" th:classappend="${carPage.first} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/home(page=${carPage.number > 0 ? carPage.number - 1 : 0}, keyword=${keyword})}">Previous</a>
+                            </li>
+                            <li class="page-item"
+                                th:each="pageNumber : ${#numbers.sequence(0, carPage.totalPages - 1)}"
+                                th:classappend="${pageNumber == carPage.number} ? 'active' : ''">
+                                <a class="page-link" th:href="@{/home(page=${pageNumber}, keyword=${keyword})}"
+                                   th:text="${pageNumber + 1}">1</a>
+                            </li>
+                            <li class="page-item" th:classappend="${carPage.last} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/home(page=${carPage.last ? carPage.number : carPage.number + 1}, keyword=${keyword})}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="surface-body border-top d-flex justify-content-end"
+                     th:if="${carPage != null and !carPage.empty}">
                 </div>
             </div>
         </div>

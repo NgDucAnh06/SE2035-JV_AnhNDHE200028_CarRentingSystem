@@ -36,7 +36,7 @@ public class CarRental {
     @Column(name = "RentPrice", precision = 10, nullable = false)
     private BigDecimal rentPrice;
 
-    @Column(name = "Status", columnDefinition = "NVARCHAR(10)", nullable = false)
+    @Column(name = "Status", columnDefinition = "NVARCHAR(30)", nullable = false)
     private String status;
 
     @PrePersist

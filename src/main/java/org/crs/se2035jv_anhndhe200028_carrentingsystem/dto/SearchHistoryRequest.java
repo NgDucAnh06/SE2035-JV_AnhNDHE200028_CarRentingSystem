@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class SearchReportDTO {
-    private LocalDate pickupDate;
-    private LocalDate returnDate;
-    private String fullName;
+public class SearchHistoryRequest {
     private String carName;
+    private LocalDate fromDate;
+    private LocalDate toDate;
     private String status;
+    private String order;
 }

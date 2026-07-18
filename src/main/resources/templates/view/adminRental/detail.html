@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Rental Detail</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Rental operations</div>
+            <h1 class="page-title">Rental Detail</h1>
+            <p class="page-subtitle">
+                Review order <span class="fw-bold" th:text="|#${carRental.carRenID}|">#1</span>, customer, and vehicle information.
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a th:href="@{/adminRental/rentalManagement}" class="btn-outline-modern">
+                <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+                Back to Rentals
+            </a>
+        </div>
+    </div>
+
+    <section class="surface mb-4">
+        <div class="surface-header d-flex align-items-center justify-content-between gap-3">
+            <div>
+                <h5 class="mb-1">Rental Information</h5>
+                <p class="mb-0 text-muted small">Order dates, price, and processing status.</p>
+            </div>
+            <span th:class="'status-badge status-' + ${#strings.toLowerCase(carRental.status)}"
+                  th:text="${#strings.replace(carRental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+        </div>
+        <div class="surface-body">
+            <div class="row g-4">
+                <div class="col-sm-6 col-xl-3">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Rental ID</p>
+                    <p class="fw-bold mb-0" th:text="|#${carRental.carRenID}|">#1</p>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Pickup Date</p>
+                    <p class="fw-medium mb-0" th:text="${#temporals.format(carRental.pickupDate, 'dd/MM/yyyy')}">01/01/2026</p>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Return Date</p>
+                    <p class="fw-medium mb-0" th:text="${#temporals.format(carRental.returnDate, 'dd/MM/yyyy')}">02/01/2026</p>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Total Price</p>
+                    <p class="fw-bold mb-0 text-primary fs-5"
+                       th:text="${#numbers.formatDecimal(carRental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-6">
+            <section class="surface h-100">
+                <div class="surface-header">
+                    <h5 class="mb-1">Customer Information</h5>
+                    <p class="mb-0 text-muted small">Contact, identity, and driving licence details.</p>
+                </div>
+                <div class="surface-body">
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Full Name</p>
+                            <p class="fw-bold mb-0" th:text="${carRental.customer.fullName}">Customer</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Username</p>
+                            <p class="mb-0" th:text="${carRental.customer.account.accountName}">username</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Email</p>
+                            <p class="mb-0 text-break" th:text="${carRental.customer.account.email}">email@example.com</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Mobile</p>
+                            <p class="mb-0" th:text="${carRental.customer.mobile}">0900000000</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Identity Card</p>
+                            <p class="mb-0" th:text="${carRental.customer.identityCard}">000000000000</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Licence Number</p>
+                            <p class="mb-0" th:text="${carRental.customer.licenceNumber}">000000000000</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Birthday</p>
+                            <p class="mb-0" th:text="${#temporals.format(carRental.customer.birthday, 'dd/MM/yyyy')}">01/01/2000</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Licence Date</p>
+                            <p class="mb-0" th:text="${#temporals.format(carRental.customer.licenceDate, 'dd/MM/yyyy')}">01/01/2020</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-xl-6">
+            <section class="surface h-100">
+                <div class="surface-header">
+                    <h5 class="mb-1">Vehicle Information</h5>
+                    <p class="mb-0 text-muted small">Car identity, specification, and daily rate.</p>
+                </div>
+                <div class="surface-body">
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Car Name</p>
+                            <p class="fw-bold mb-0" th:text="${carRental.car.carName}">Car</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Producer</p>
+                            <p class="mb-0" th:text="${carRental.car.producer.producerName}">Producer</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Model Year</p>
+                            <p class="mb-0" th:text="${carRental.car.carModelYear}">2026</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Color</p>
+                            <p class="mb-0" th:text="${carRental.car.color}">Black</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Capacity</p>
+                            <p class="mb-0" th:text="${carRental.car.capacity} + ' seats'">4 seats</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Price Per Day</p>
+                            <p class="fw-bold mb-0"
+                               th:text="${#numbers.formatDecimal(carRental.car.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</p>
+                        </div>
+                        <div class="col-12">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Description</p>
+                            <p class="mb-0" th:text="${carRental.car.description}">Vehicle description</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="surface" th:if="${review != null}">
+        <div class="surface-header">
+            <h5 class="mb-1">Customer Review</h5>
+            <p class="mb-0 text-muted small">Feedback submitted for this completed rental.</p>
+        </div>
+        <div class="surface-body">
+            <div class="d-flex align-items-center gap-1 text-warning mb-3">
+                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                    <i data-lucide="star"
+                       th:style="${i <= review.reviewStar ? 'width: 22px; height: 22px; fill: currentColor;' : 'width: 22px; height: 22px;'}"></i>
+                </span>
+                <span class="ms-2 text-dark fw-bold" th:text="${review.reviewStar} + ' / 5'">5 / 5</span>
+            </div>
+            <p class="mb-0" th:text="${review.comment}">Review comment</p>
+        </div>
+    </section>
+
+    <section class="surface" th:if="${review == null}">
+        <div class="empty-state py-4">
+            <div class="empty-state-icon"><i data-lucide="message-square"></i></div>
+            <h5>No review submitted</h5>
+            <p class="mb-0">The customer has not reviewed this rental.</p>
+        </div>
+    </section>
+
+    <div class="d-flex justify-content-end gap-2 flex-wrap mt-4"
+         th:if="${carRental.status == 'WAITING_FOR_PICKUP' or carRental.status == 'RENTING'}">
+        <th:block th:if="${carRental.status == 'WAITING_FOR_PICKUP'}">
+            <form th:action="@{/adminRental/{id}/deliver(id=${carRental.carRenID})}" method="post">
+                <button type="submit" class="btn-soft-modern">
+                    <i data-lucide="key-round" style="width: 18px; height: 18px;"></i>
+                    Deliver Car
+                </button>
+            </form>
+            <form th:action="@{/adminRental/{id}/cancel(id=${carRental.carRenID})}" method="post">
+                <button type="submit" class="btn-danger-modern"
+                        onclick="return confirm('Are you sure you want to cancel this rental?');">
+                    <i data-lucide="x-circle" style="width: 18px; height: 18px;"></i>
+                    Cancel
+                </button>
+            </form>
+        </th:block>
+        <form th:if="${carRental.status == 'RENTING'}"
+              th:action="@{/adminRental/{id}/complete(id=${carRental.carRenID})}" method="post">
+            <button type="submit" class="btn-soft-modern"
+                    onclick="return confirm('Confirm that the customer returned the car?');">
+                <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                Complete
+            </button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

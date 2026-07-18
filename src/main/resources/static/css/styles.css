@@ -388,18 +388,21 @@ textarea.form-control-modern {
 
 .status-rented,
 .status-active,
+.status-waiting_for_pickup,
 .status-confirmed {
     color: #3730a3;
     background: #e0e7ff;
 }
 
 .status-maintenance,
-.status-pending {
+.status-pending,
+.status-renting {
     color: #92400e;
     background: #fef3c7;
 }
 
 .status-cancelled,
+.status-canceled,
 .status-unavailable {
     color: #be123c;
     background: #ffe4e6;
@@ -699,8 +702,31 @@ textarea.form-control-modern {
 .rental-car-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
     gap: 1rem;
+    max-height: min(65vh, 680px);
     padding: 1rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.rental-car-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.rental-car-grid::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.rental-car-grid::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border: 2px solid #f1f5f9;
+    border-radius: 999px;
+}
+
+.rental-car-grid::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .rental-car-card {
@@ -954,7 +980,7 @@ textarea.form-control-modern {
 }
 
 .motion-container {
-    opacity: 0;
+    opacity: 1;
 }
 
 @media (max-width: 991.98px) {

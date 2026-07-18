@@ -3,10 +3,14 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RentalSummaryDTO;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RentalReportStatsDTO;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.SearchHistoryRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.SearchReportDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.CarStatus;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.CarRentalService;
@@ -31,7 +35,7 @@ public class CarRentalServiceImpl implements CarRentalService {
     @Override
     public void save(CarRental carRental) {
         if (carRental.getStatus() == null) {
-            carRental.setStatus("PENDING");
+            carRental.setStatus(RentalStatus.WAITING_FOR_PICKUP.name());
         }
         
         carRentalRepository.save(carRental);
@@ -39,14 +43,24 @@ public class CarRentalServiceImpl implements CarRentalService {
         if (carRental.getCar() != null && carRental.getCar().getCarID() != null) {
             Car car = carRepository.findById(carRental.getCar().getCarID())
                     .orElseThrow(() -> new IllegalArgumentException("Car not found"));
-            car.setStatus("RENTED");
+            car.setStatus(CarStatus.RENTED.name());
             carRepository.save(car);
         }
     }
 
     @Override
-    public Page<CarRental> getCarRentalPageByCustomer(Customer customer, Pageable pageable) {
-        return carRentalRepository.findAllByCustomer(customer, pageable);
+    public Page<CarRental> showHistoryByCustomer(Customer customer, Pageable pageable, SearchHistoryRequest searchHistoryRequest) {
+        String status = searchHistoryRequest.getStatus();
+        if (status != null && status.trim().isEmpty()) {
+            status = null;
+        }
+        return carRentalRepository.findCarRentalHistory(
+                customer.getCustomerID(),
+                searchHistoryRequest.getCarName(),
+                searchHistoryRequest.getFromDate(),
+                searchHistoryRequest.getToDate(),
+                status,
+                pageable);
     }
 
     @Override
@@ -56,7 +70,7 @@ public class CarRentalServiceImpl implements CarRentalService {
         }
         for (Integer carId : carIds) {
             Car car = carRepository.findById(carId).orElse(null);
-            if (car != null && "AVAILABLE".equals(car.getStatus())) {
+            if (car != null && CarStatus.AVAILABLE.name().equals(car.getStatus())) {
                 long days = ChronoUnit.DAYS.between(pickupDate, returnDate);
                 if (days <= 0) {
                     days = 1;
@@ -68,9 +82,9 @@ public class CarRentalServiceImpl implements CarRentalService {
                         .pickupDate(pickupDate)
                         .returnDate(returnDate)
                         .rentPrice(totalRentalPrice)
-                        .status("PENDING")
+                        .status(RentalStatus.WAITING_FOR_PICKUP.name())
                         .build();
-                car.setStatus("RENTED");
+                car.setStatus(CarStatus.RENTED.name());
                 carRepository.save(car);
                 this.save(rental);
             }
@@ -78,32 +92,132 @@ public class CarRentalServiceImpl implements CarRentalService {
     }
 
     @Override
-    public List<RentalSummaryDTO> showManagement() {
-        return carRentalRepository.findCarRentalSummaries();
+    @Transactional(readOnly = true)
+    public Page<RentalSummaryDTO> showManagement(SearchHistoryRequest searchRequest, Pageable pageable) {
+        String carName = normalizeFilter(searchRequest.getCarName());
+        String status = normalizeFilter(searchRequest.getStatus());
+        return carRentalRepository.findCarRentalManagement(
+                carName,
+                searchRequest.getFromDate(),
+                searchRequest.getToDate(),
+                status,
+                pageable
+        );
+    }
+
+    private String normalizeFilter(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        return value.trim();
     }
 
     @Override
     public void updateStatus(Integer id, String status) {
         CarRental rental = carRentalRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Rental not found"));
-        rental.setStatus(status);
+        RentalStatus currentStatus = RentalStatus.valueOf(rental.getStatus());
+        RentalStatus targetStatus = RentalStatus.valueOf(status);
+
+        if (!isValidStatusTransition(currentStatus, targetStatus)) {
+            throw new IllegalStateException(
+                    "Cannot change rental status from " + currentStatus + " to " + targetStatus
+            );
+        }
+
+        rental.setStatus(targetStatus.name());
         carRentalRepository.save(rental);
 
         if (rental.getCar() != null && rental.getCar().getCarID() != null) {
             Car car = carRepository.findById(rental.getCar().getCarID()).orElse(null);
             if (car != null) {
-                if ("COMPLETED".equals(status) || "CANCELLED".equals(status)) {
-                    car.setStatus("AVAILABLE");
-                } else if ("ACTIVE".equals(status) || "RENTED".equals(status)) {
-                    car.setStatus("RENTED");
+                if (targetStatus == RentalStatus.COMPLETED || targetStatus == RentalStatus.CANCELED) {
+                    car.setStatus(CarStatus.AVAILABLE.name());
+                } else {
+                    car.setStatus(CarStatus.RENTED.name());
                 }
                 carRepository.save(car);
             }
         }
     }
 
+    private boolean isValidStatusTransition(RentalStatus currentStatus, RentalStatus targetStatus) {
+        return (currentStatus == RentalStatus.WAITING_FOR_PICKUP
+                && (targetStatus == RentalStatus.RENTING || targetStatus == RentalStatus.CANCELED))
+                || (currentStatus == RentalStatus.RENTING && targetStatus == RentalStatus.COMPLETED);
+    }
+
     @Override
-    public List<RentalSummaryDTO> showReport(SearchReportDTO searchReportDTO) {
-        return carRentalRepository.findCarRentalReport(searchReportDTO.getPickupDate(), searchReportDTO.getReturnDate(),
-                searchReportDTO.getFullName());
+    public void cancelRentalByCustomer(Integer id, Customer customer) {
+        CarRental rental = carRentalRepository.findById(id).orElse(null);
+        if (rental == null || customer == null
+                || !rental.getCustomer().getCustomerID().equals(customer.getCustomerID())) {
+            throw new IllegalArgumentException("Rental not found or access denied.");
+        }
+
+        if (!RentalStatus.WAITING_FOR_PICKUP.name().equals(rental.getStatus())) {
+            throw new IllegalStateException("Only rentals waiting for pickup can be canceled.");
+        }
+
+        updateStatus(id, RentalStatus.CANCELED.name());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<RentalSummaryDTO> showReport(SearchReportDTO searchReportDTO, Pageable pageable) {
+        return carRentalRepository.findCarRentalReport(
+                searchReportDTO.getPickupDate(),
+                searchReportDTO.getReturnDate(),
+                normalizeFilter(searchReportDTO.getFullName()),
+                normalizeFilter(searchReportDTO.getCarName()),
+                normalizeFilter(searchReportDTO.getStatus()),
+                pageable
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RentalReportStatsDTO getReportStats(SearchReportDTO searchReportDTO) {
+        List<Object[]> rows = carRentalRepository.findCarRentalReportStats(
+                searchReportDTO.getPickupDate(),
+                searchReportDTO.getReturnDate(),
+                normalizeFilter(searchReportDTO.getFullName()),
+                normalizeFilter(searchReportDTO.getCarName()),
+                normalizeFilter(searchReportDTO.getStatus())
+        );
+
+        Object[] values = rows.isEmpty() ? new Object[0] : rows.getFirst();
+
+        return new RentalReportStatsDTO(
+                toLong(valueAt(values, 0)),
+                toBigDecimal(valueAt(values, 1)),
+                toLong(valueAt(values, 2)),
+                toLong(valueAt(values, 3)),
+                toLong(valueAt(values, 4))
+        );
+    }
+
+    private Object valueAt(Object[] values, int index) {
+        return index < values.length ? values[index] : null;
+    }
+
+    private long toLong(Object value) {
+        return value instanceof Number number ? number.longValue() : 0L;
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+        if (value instanceof BigDecimal decimal) {
+            return decimal;
+        }
+        return value == null ? BigDecimal.ZERO : new BigDecimal(value.toString());
+    }
+
+    @Override
+    public Page<CarRental> getCompletedRentals(Customer customer, Pageable pageable) {
+        return carRentalRepository.findByCustomerAndStatus(customer, RentalStatus.COMPLETED.name(), pageable);
+    }
+
+    @Override
+    public CarRental findById(Integer id) {
+        return carRentalRepository.findById(id).orElse(null);
     }
 }

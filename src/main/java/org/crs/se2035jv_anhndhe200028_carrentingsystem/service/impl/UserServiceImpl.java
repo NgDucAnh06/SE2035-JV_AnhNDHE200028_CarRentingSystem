@@ -7,13 +7,22 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.CarStatus;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidationException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.AccountRepository;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CustomerRepository;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.ReviewRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.utility.InputStandization;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
+    private final CarRentalRepository carRentalRepository;
+    private final ReviewRepository reviewRepository;
+    private final CarRepository carRepository;
 
     @Override
     public Account signin(LoginRequest loginRequest) {
@@ -155,13 +167,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<Account> searchCustomersByName(String keyword, Pageable pageable) {
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        return accountRepository.searchByCustomerName("customer", normalizedKeyword, pageable);
+    }
+
+    @Override
     public Account getAccountById(Integer id) {
         return accountRepository.findAccountByAccountID(id);
     }
 
     @Override
-    public void delete(Integer id) {
-        accountRepository.deleteAccountByAccountID(id);
+    public void deleteCustomer(Integer accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Customer account not found."));
+
+        if (!"customer".equalsIgnoreCase(account.getRole())) {
+            throw new IllegalArgumentException("Only customer accounts can be deleted.");
+        }
+
+        Customer customer = account.getCustomer();
+        if (customer != null) {
+            List<CarRental> rentals = carRentalRepository.findAllByCustomer(customer);
+
+            for (CarRental rental : rentals) {
+                if (isCarHeldByRental(rental.getStatus()) && rental.getCar() != null) {
+                    Car car = rental.getCar();
+                    car.setStatus(CarStatus.AVAILABLE.name());
+                    carRepository.save(car);
+                }
+            }
+
+            if (!rentals.isEmpty()) {
+                reviewRepository.deleteAll(reviewRepository.findByCarRentalIn(rentals));
+                reviewRepository.flush();
+                carRentalRepository.deleteAll(rentals);
+                carRentalRepository.flush();
+            }
+        }
+
+        accountRepository.delete(account);
+    }
+
+    private boolean isCarHeldByRental(String status) {
+        return RentalStatus.WAITING_FOR_PICKUP.name().equals(status)
+                || RentalStatus.RENTING.name().equals(status)
+                || "ACTIVE".equals(status)
+                || "PENDING".equals(status);
     }
 
     @Override

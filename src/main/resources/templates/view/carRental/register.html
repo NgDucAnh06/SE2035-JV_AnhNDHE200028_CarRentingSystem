@@ -9,6 +9,7 @@
 </head>
 <body>
 <main layout:fragment="content">
+    <input type="hidden" id="preselectedCarId" th:value="${selectedCarId}">
     <div class="page-header">
         <div>
             <div class="page-eyebrow">Booking</div>
@@ -309,6 +310,17 @@
             var today = new Date().toISOString().split('T')[0];
             document.getElementById('pickupDate').min = today;
             document.getElementById('returnDate').min = today;
+
+            var preselectedCarInput = document.getElementById('preselectedCarId');
+            var selectedCarId = preselectedCarInput ? preselectedCarInput.value : '';
+            if (selectedCarId) {
+                var selectedButton = Array.from(document.querySelectorAll('.car-select-button')).find(function (button) {
+                    return button.getAttribute('data-id') === selectedCarId;
+                });
+                if (selectedButton) {
+                    toggleCar(selectedButton);
+                }
+            }
         });
     </script>
 </main>

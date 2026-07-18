@@ -15,7 +15,7 @@
             <h1 class="page-title">Customer Management</h1>
             <p class="page-subtitle">Review customer contact, login, and profile information before managing rentals.</p>
         </div>
-        <span class="status-badge status-available" th:text="${accounts != null ? #lists.size(accounts) + ' customers' : '0 customers'}">0 customers</span>
+        <span class="status-badge status-available" th:text="${accountPage.totalElements + ' customers'}">0 customers</span>
     </div>
 
     <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -23,11 +23,33 @@
         <span th:text="${message}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
     <div class="surface">
         <div class="surface-header">
             <h5 class="mb-1">Customer directory</h5>
             <p class="mb-0 text-muted small">All accounts with customer role.</p>
+        </div>
+        <div class="px-4 py-3 border-bottom">
+            <form th:action="@{/adminCustomer/list}" method="get" class="d-flex flex-column flex-sm-row gap-2">
+                <div class="position-relative flex-grow-1">
+                    <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted"
+                       style="left: 14px; width: 18px; height: 18px;"></i>
+                    <input type="search" name="keyword" class="form-control ps-5"
+                           th:value="${keyword}" placeholder="Search by customer name..."
+                           aria-label="Search customers by name">
+                </div>
+                <button type="submit" class="btn-primary-modern justify-content-center">
+                    <i data-lucide="search" style="width: 17px; height: 17px;"></i>
+                    Search
+                </button>
+                <a th:if="${keyword != null and !#strings.isEmpty(keyword)}"
+                   th:href="@{/adminCustomer/list}" class="btn-outline-modern justify-content-center">Clear</a>
+            </form>
         </div>
         <div class="table-responsive">
             <table class="table-modern">
@@ -43,7 +65,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="account, stat: ${accounts}">
-                    <td th:text="${stat.count}">1</td>
+                    <td th:text="${accountPage.number * accountPage.size + stat.count}">1</td>
                     <td>
                         <div class="fw-bold text-dark" th:text="${account.customer != null ? account.customer.fullName : 'No profile'}">Full name</div>
                         <div class="text-muted small" th:text="${account.role}">CUSTOMER</div>
@@ -78,6 +100,28 @@
                 </tr>
                 </tbody>
             </table>
+        </div>
+        <div th:if="${accountPage.totalPages > 1}"
+             class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 px-4 py-3 border-top">
+            <p class="mb-0 text-muted small"
+               th:text="|Showing ${accountPage.number * accountPage.size + 1}-${accountPage.number * accountPage.size + accountPage.numberOfElements} of ${accountPage.totalElements}|">
+                Showing results
+            </p>
+            <nav aria-label="Customer pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${accountPage.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/adminCustomer/list(page=${accountPage.number - 1}, keyword=${keyword})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, accountPage.totalPages - 1)}"
+                        th:classappend="${pageNumber == accountPage.number} ? 'active'">
+                        <a class="page-link" th:href="@{/adminCustomer/list(page=${pageNumber}, keyword=${keyword})}"
+                           th:text="${pageNumber + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${accountPage.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/adminCustomer/list(page=${accountPage.number + 1}, keyword=${keyword})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </main>

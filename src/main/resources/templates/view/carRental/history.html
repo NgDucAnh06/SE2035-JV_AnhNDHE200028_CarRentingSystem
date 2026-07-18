@@ -13,6 +13,10 @@
         <span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
     <div class="page-header">
         <div>
             <div class="page-eyebrow">Your trips</div>
@@ -30,6 +34,37 @@
             <h5 class="mb-1">Rental records</h5>
             <p class="mb-0 text-muted small">Your rental history from the current account session.</p>
         </div>
+        <div class="px-4 py-3 border-bottom">
+            <form th:action="@{/carRental/history}" method="get" th:object="${searchHistoryDTO}" class="row g-3">
+                <div class="col-md-3">
+                    <label for="carName" class="form-label text-muted small mb-1">Car Name</label>
+                    <input type="text" class="form-control" id="carName" th:field="*{carName}" placeholder="Enter car name">
+                </div>
+                <div class="col-md-3">
+                    <label for="fromDate" class="form-label text-muted small mb-1">Pickup Date From</label>
+                    <input type="date" class="form-control" id="fromDate" th:field="*{fromDate}">
+                </div>
+                <div class="col-md-3">
+                    <label for="toDate" class="form-label text-muted small mb-1">Return Date To</label>
+                    <input type="date" class="form-control" id="toDate" th:field="*{toDate}">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label text-muted small mb-1">Status</label>
+                    <select class="form-select" id="status" th:field="*{status}">
+                        <option value="">All Statuses</option>
+                        <option value="WAITING_FOR_PICKUP">Waiting for pickup</option>
+                        <option value="RENTING">Renting</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELED">Canceled</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100" style="height: 38px;">
+                        <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
         <div class="table-responsive" th:if="${rentalPage != null and !rentalPage.empty}">
             <table class="table-modern">
                 <thead>
@@ -40,17 +75,44 @@
                     <th>Return Date</th>
                     <th>Total Price</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="rental, iterStat : ${rentalPage.content}">
                     <td th:text="${rentalPage.number * rentalPage.size + iterStat.count}">1</td>
-                    <td class="fw-bold text-dark" th:text="${rental.car != null ? rental.car.carName : 'N/A'}">Car</td>
-                    <td th:text="${rental.pickupDate}">2026-01-01</td>
-                    <td th:text="${rental.returnDate}">2026-01-03</td>
+                    <td class="fw-bold text-dark">
+                        <a th:href="@{/carRental/detail/{id}(id=${rental.carRenID})}" class="text-decoration-none text-primary" th:text="${rental.car != null ? rental.car.carName : 'N/A'}">Car</a>
+                    </td>
+                    <td th:text="${#temporals.format(rental.pickupDate, 'dd/MM/yyyy')}">01/01/2026</td>
+                    <td th:text="${#temporals.format(rental.returnDate, 'dd/MM/yyyy')}">03/01/2026</td>
                     <td class="fw-bold" th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
                     <td>
-                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}" th:text="${rental.status}">ACTIVE</span>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}"
+                              th:text="${#strings.replace(rental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a th:href="@{/carRental/detail/{id}(id=${rental.carRenID})}"
+                               class="btn btn-outline-primary btn-sm">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                View Detail
+                            </a>
+                            <a th:if="${rental.status == 'COMPLETED' and !#lists.contains(reviewedRentalIds, rental.carRenID)}"
+                               th:href="@{/review/{id}/form(id=${rental.carRenID})}"
+                               class="btn btn-warning btn-sm">
+                                <i data-lucide="star" style="width: 16px; height: 16px;"></i>
+                                Review
+                            </a>
+                            <form th:if="${rental.status == 'WAITING_FOR_PICKUP'}"
+                                  th:action="@{/carRental/{id}/cancel(id=${rental.carRenID})}" method="post">
+                                <button type="submit" class="btn-danger-modern btn-sm"
+                                        onclick="return confirm('Are you sure you want to cancel this rental?');">
+                                    <i data-lucide="x-circle" style="width: 16px; height: 16px;"></i>
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
@@ -68,7 +130,7 @@
                 <ul class="pagination mb-0">
                     <li class="page-item" th:classappend="${rentalPage.first} ? 'disabled' : ''">
                         <a class="page-link"
-                           th:href="@{/carRental/history(page=${rentalPage.number > 0 ? rentalPage.number - 1 : 0}, size=${rentalPage.size})}"
+                           th:href="@{/carRental/history(page=${rentalPage.number > 0 ? rentalPage.number - 1 : 0}, size=${rentalPage.size}, carName=${searchHistoryDTO.carName}, fromDate=${searchHistoryDTO.fromDate}, toDate=${searchHistoryDTO.toDate}, status=${searchHistoryDTO.status})}"
                            th:attr="aria-disabled=${rentalPage.first}"
                            aria-label="Previous page">
                             Previous
@@ -79,13 +141,13 @@
                         th:each="pageNumber : ${#numbers.sequence(0, rentalPage.totalPages - 1)}"
                         th:classappend="${pageNumber == rentalPage.number} ? 'active' : ''">
                         <a class="page-link"
-                           th:href="@{/carRental/history(page=${pageNumber}, size=${rentalPage.size})}"
+                           th:href="@{/carRental/history(page=${pageNumber}, size=${rentalPage.size}, carName=${searchHistoryDTO.carName}, fromDate=${searchHistoryDTO.fromDate}, toDate=${searchHistoryDTO.toDate}, status=${searchHistoryDTO.status})}"
                            th:text="${pageNumber + 1}">1</a>
                     </li>
 
                     <li class="page-item" th:classappend="${rentalPage.last} ? 'disabled' : ''">
                         <a class="page-link"
-                           th:href="@{/carRental/history(page=${rentalPage.last ? rentalPage.number : rentalPage.number + 1}, size=${rentalPage.size})}"
+                           th:href="@{/carRental/history(page=${rentalPage.last ? rentalPage.number : rentalPage.number + 1}, size=${rentalPage.size}, carName=${searchHistoryDTO.carName}, fromDate=${searchHistoryDTO.fromDate}, toDate=${searchHistoryDTO.toDate}, status=${searchHistoryDTO.status})}"
                            th:attr="aria-disabled=${rentalPage.last}"
                            aria-label="Next page">
                             Next

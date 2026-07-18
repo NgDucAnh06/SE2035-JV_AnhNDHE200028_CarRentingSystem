@@ -40,11 +40,20 @@
                 link.classList.add("active");
             }
         });
-        const { animate } = Motion;
         document.addEventListener("DOMContentLoaded", () => {
             const mainContent = document.getElementById("main-content");
-            if(mainContent) {
-                animate(mainContent, { opacity: [0, 1], y: [15, 0] }, { duration: 0.5, easing: "ease-out" });
+            if (!mainContent) {
+                return;
+            }
+
+            if (window.Motion && typeof window.Motion.animate === "function") {
+                window.Motion.animate(
+                    mainContent,
+                    { opacity: [0, 1], y: [15, 0] },
+                    { duration: 0.5, easing: "ease-out" }
+                );
+            } else {
+                mainContent.style.opacity = "1";
             }
         });
     </script>

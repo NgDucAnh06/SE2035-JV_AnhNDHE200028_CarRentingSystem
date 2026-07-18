@@ -13,92 +13,201 @@
         <div>
             <div class="page-eyebrow">Analytics</div>
             <h1 class="page-title">Rental Report</h1>
-            <p class="page-subtitle">Search and filter rental records by customer name, pickup date, or return date.</p>
+            <p class="page-subtitle">Monitor completed revenue, rental volume, active orders, and cancellations for the selected period.</p>
         </div>
         <span class="status-badge status-active"
-              th:text="${report != null ? #lists.size(report) + ' results' : '0 results'}">0 results</span>
+              th:text="${reportPage.totalElements + ' matching rentals'}">0 matching rentals</span>
     </div>
 
-    <!-- Search Form -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="metric-card h-100">
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                    <div class="metric-icon" style="background: #dbeafe; color: #1d4ed8;">
+                        <i data-lucide="files" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span class="text-muted small">Filtered results</span>
+                </div>
+                <div class="fs-3 fw-bold text-dark" th:text="${reportStats.totalRentals}">0</div>
+                <div class="text-muted small">Total rentals</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="metric-card h-100">
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                    <div class="metric-icon" style="background: #dcfce7; color: #15803d;">
+                        <i data-lucide="badge-dollar-sign" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span class="text-muted small">Completed only</span>
+                </div>
+                <div class="fs-4 fw-bold text-dark"
+                     th:text="${#numbers.formatDecimal(reportStats.completedRevenue, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</div>
+                <div class="text-muted small" th:text="${reportStats.completedRentals + ' completed rentals'}">0 completed rentals</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="metric-card h-100">
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                    <div class="metric-icon" style="background: #fef3c7; color: #b45309;">
+                        <i data-lucide="timer" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span class="text-muted small">Requires tracking</span>
+                </div>
+                <div class="fs-3 fw-bold text-dark" th:text="${reportStats.activeRentals}">0</div>
+                <div class="text-muted small">Waiting for pickup or renting</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="metric-card h-100">
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                    <div class="metric-icon" style="background: #fee2e2; color: #b91c1c;">
+                        <i data-lucide="circle-x" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span class="text-muted small">Canceled orders</span>
+                </div>
+                <div class="fs-3 fw-bold text-dark" th:text="${reportStats.canceledRentals}">0</div>
+                <div class="text-muted small">Rentals not completed</div>
+            </div>
+        </div>
+    </div>
+
     <div class="surface mb-4">
         <div class="surface-header">
-            <h5 class="mb-1">Search Filters</h5>
-            <p class="mb-0 text-muted small">Narrow down rentals using any combination of the filters below.</p>
+            <h5 class="mb-1">Report Filters</h5>
+            <p class="mb-0 text-muted small">All summary cards and table results use the filters below.</p>
         </div>
-        <div class="p-3 p-md-4">
+        <div class="surface-body">
             <form th:action="@{/report/show}" th:object="${searchReportDTO}" method="get">
                 <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label for="fullName" class="form-label fw-semibold">Customer Name</label>
+                    <div class="col-md-6 col-xl-3">
+                        <label for="fullName" class="form-label text-muted small mb-1">Customer Name</label>
                         <input type="text" class="form-control" id="fullName" th:field="*{fullName}"
-                               placeholder="e.g. Nguyen Van A" />
+                               placeholder="Enter customer name">
                     </div>
-                    <div class="col-md-3">
-                        <label for="pickupDate" class="form-label fw-semibold">Pickup Date</label>
-                        <input type="date" class="form-control" id="pickupDate" th:field="*{pickupDate}" />
+                    <div class="col-md-6 col-xl-3">
+                        <label for="carName" class="form-label text-muted small mb-1">Car Name</label>
+                        <input type="text" class="form-control" id="carName" th:field="*{carName}"
+                               placeholder="Enter car name">
                     </div>
-                    <div class="col-md-3">
-                        <label for="returnDate" class="form-label fw-semibold">Return Date</label>
-                        <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}" />
+                    <div class="col-md-4 col-xl-2">
+                        <label for="pickupDate" class="form-label text-muted small mb-1">Pickup Date From</label>
+                        <input type="date" class="form-control" id="pickupDate" th:field="*{pickupDate}">
                     </div>
-                    <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn-soft-modern flex-grow-1">
-                            <i data-lucide="search" style="width: 16px; height: 16px;"></i>
-                            Search
-                        </button>
-                        <a th:href="@{/report/show}" class="btn-danger-modern d-flex align-items-center justify-content-center"
-                           style="padding: 0.45rem 1rem; text-decoration: none;">
-                            <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+                    <div class="col-md-4 col-xl-2">
+                        <label for="returnDate" class="form-label text-muted small mb-1">Return Date To</label>
+                        <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}">
+                    </div>
+                    <div class="col-md-4 col-xl-2">
+                        <label for="status" class="form-label text-muted small mb-1">Status</label>
+                        <select class="form-select" id="status" th:field="*{status}">
+                            <option value="">All Statuses</option>
+                            <option value="WAITING_FOR_PICKUP">Waiting for pickup</option>
+                            <option value="RENTING">Renting</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELED">Canceled</option>
+                        </select>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <a th:href="@{/report/show}" class="btn-outline-modern">
+                            <i data-lucide="rotate-ccw" style="width: 16px; height: 16px;"></i>
                             Reset
                         </a>
+                        <button type="submit" class="btn-primary-modern">
+                            <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+                            Apply Filters
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Report Results Table -->
     <div class="surface">
-        <div class="surface-header">
-            <h5 class="mb-1">Report Results</h5>
-            <p class="mb-0 text-muted small">Displaying rental records that match your search criteria.</p>
+        <div class="surface-header d-flex align-items-center justify-content-between gap-3">
+            <div>
+                <h5 class="mb-1">Rental Details</h5>
+                <p class="mb-0 text-muted small">Newest rental records are displayed first.</p>
+            </div>
+            <span class="text-muted small">10 records per page</span>
         </div>
-        <div class="table-responsive">
+
+        <div class="table-responsive" th:if="${!reportPage.empty}">
             <table class="table-modern">
                 <thead>
                 <tr>
                     <th>No.</th>
+                    <th>Rental</th>
                     <th>Customer</th>
                     <th>Car</th>
                     <th>Pickup</th>
                     <th>Return</th>
-                    <th>Price</th>
+                    <th>Amount</th>
                     <th>Status</th>
+                    <th class="text-end">Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="rental, stat: ${report}">
-                    <td th:text="${stat.count}">1</td>
-                    <td class="fw-bold text-dark" th:text="${rental.fullName}">Customer</td>
-                    <td th:text="${rental.carName}">Car</td>
+                <tr th:each="rental, stat : ${reportPage.content}">
+                    <td th:text="${reportPage.number * reportPage.size + stat.count}">1</td>
+                    <td class="fw-bold text-dark" th:text="${'#' + rental.carRenID}">#1</td>
+                    <td th:text="${rental.fullName}">Customer</td>
+                    <td class="fw-semibold" th:text="${rental.carName}">Car</td>
                     <td th:text="${#temporals.format(rental.pickupDate, 'dd/MM/yyyy')}">01/01/2026</td>
                     <td th:text="${#temporals.format(rental.returnDate, 'dd/MM/yyyy')}">02/01/2026</td>
-                    <td class="fw-bold" th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
+                    <td class="fw-bold"
+                        th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
                     <td>
-                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}" th:text="${rental.status}">ACTIVE</span>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}"
+                              th:text="${#strings.replace(rental.status, '_', ' ')}">WAITING FOR PICKUP</span>
                     </td>
-                </tr>
-                <tr th:if="${report == null or #lists.isEmpty(report)}">
-                    <td colspan="7">
-                        <div class="empty-state">
-                            <div class="empty-state-icon"><i data-lucide="file-search"></i></div>
-                            <h5>No matching records</h5>
-                            <p class="mb-0">Try adjusting your search filters to find rental records.</p>
-                        </div>
+                    <td class="text-end">
+                        <a th:href="@{/adminRental/{id}/detail(id=${rental.carRenID})}"
+                           class="btn-outline-modern btn-sm">
+                            <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                            Detail
+                        </a>
                     </td>
                 </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div th:if="${reportPage.totalPages > 1}"
+             class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 px-4 py-3 border-top">
+            <p class="mb-0 text-muted small"
+               th:text="|Showing ${reportPage.number * reportPage.size + 1}-${reportPage.number * reportPage.size + reportPage.numberOfElements} of ${reportPage.totalElements} rentals|">
+                Showing report results
+            </p>
+            <nav aria-label="Rental report pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${reportPage.first} ? 'disabled' : ''">
+                        <a class="page-link"
+                           th:href="@{/report/show(page=${reportPage.number > 0 ? reportPage.number - 1 : 0}, fullName=${searchReportDTO.fullName}, carName=${searchReportDTO.carName}, pickupDate=${searchReportDTO.pickupDate}, returnDate=${searchReportDTO.returnDate}, status=${searchReportDTO.status})}">
+                            Previous
+                        </a>
+                    </li>
+                    <li class="page-item"
+                        th:each="pageNumber : ${#numbers.sequence(0, reportPage.totalPages - 1)}"
+                        th:classappend="${pageNumber == reportPage.number} ? 'active' : ''">
+                        <a class="page-link"
+                           th:href="@{/report/show(page=${pageNumber}, fullName=${searchReportDTO.fullName}, carName=${searchReportDTO.carName}, pickupDate=${searchReportDTO.pickupDate}, returnDate=${searchReportDTO.returnDate}, status=${searchReportDTO.status})}"
+                           th:text="${pageNumber + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${reportPage.last} ? 'disabled' : ''">
+                        <a class="page-link"
+                           th:href="@{/report/show(page=${reportPage.last ? reportPage.number : reportPage.number + 1}, fullName=${searchReportDTO.fullName}, carName=${searchReportDTO.carName}, pickupDate=${searchReportDTO.pickupDate}, returnDate=${searchReportDTO.returnDate}, status=${searchReportDTO.status})}">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div th:if="${reportPage.empty}" class="empty-state">
+            <div class="empty-state-icon"><i data-lucide="file-search"></i></div>
+            <h5>No matching rental data</h5>
+            <p class="mb-3">Change or reset the report filters to see other rental records.</p>
+            <a th:href="@{/report/show}" class="btn-outline-modern">Reset filters</a>
         </div>
     </div>
 </main>
