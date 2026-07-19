@@ -42,11 +42,7 @@ public class DataInitializer implements CommandLineRunner {
                 && carProducerRepository.count() == 0
                 && carRepository.count() == 0;
 
-        carRentalRepository.replaceStatus("WAITING_FOR_PICKUP", RentalStatus.ACTIVE.name());
-        carRentalRepository.replaceStatus("PENDING", RentalStatus.RENTING.name());
-        carRentalRepository.replaceStatus("WAITING", RentalStatus.ACTIVE.name());
-
-        // Initialize admin account
+        //admin account
         if (accountRepository.findByAccountName("admin").isEmpty()) {
             Account admin = Account.builder()
                     .accountName("admin")
@@ -57,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
             accountRepository.save(admin);
         }
 
-        // Initialize test user account
+        //test user account
         Account testUser = accountRepository.findByAccountName("test").orElse(null);
         if (testUser == null) {
             testUser = Account.builder()
@@ -73,15 +69,13 @@ public class DataInitializer implements CommandLineRunner {
                     .mobile("0123456789")
                     .identityCard("012345678912")
                     .licenceNumber("012345678912")
-                    .licenceDate(LocalDate.now().minusYears(2))
-                    .birthday(LocalDate.now().minusYears(20))
+                    .licenceDate(LocalDate.of(2022, 1, 15))
+                    .birthday(LocalDate.of(2000, 5, 20))
                     .build();
 
             testUser.setCustomer(customer);
             testUser = accountRepository.save(testUser);
         }
-
-        migrateLegacyPasswords();
 
         if (testUser.getCustomer() == null) {
             Customer customer = createTestCustomer(testUser);
@@ -99,18 +93,6 @@ public class DataInitializer implements CommandLineRunner {
         initializeRentalHistory(testUser.getCustomer(), cars);
     }
 
-    private void migrateLegacyPasswords() {
-        List<Account> accountsToMigrate = accountRepository.findAll().stream()
-                .filter(account -> !isBcryptHash(account.getPassword()))
-                .toList();
-
-        accountsToMigrate.forEach(account ->
-                account.setPassword(passwordEncoder.encode(account.getPassword())));
-        if (!accountsToMigrate.isEmpty()) {
-            accountRepository.saveAll(accountsToMigrate);
-        }
-    }
-
     private boolean isBcryptHash(String password) {
         return password != null
                 && password.matches("^\\$2[aby]\\$\\d{2}\\$[./A-Za-z0-9]{53}$");
@@ -123,8 +105,8 @@ public class DataInitializer implements CommandLineRunner {
                 .mobile("0123456789")
                 .identityCard("012345678912")
                 .licenceNumber("012345678912")
-                .licenceDate(LocalDate.now().minusYears(2))
-                .birthday(LocalDate.now().minusYears(20))
+                .licenceDate(LocalDate.of(2022, 1, 15))
+                .birthday(LocalDate.of(2000, 5, 20))
                 .build();
     }
 

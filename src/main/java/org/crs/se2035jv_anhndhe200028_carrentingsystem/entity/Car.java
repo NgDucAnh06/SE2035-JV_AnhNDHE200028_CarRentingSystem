@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.CarStatus;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,6 +56,7 @@ public class Car {
     @Column(name = "ImportDate", nullable = false)
     @NotNull(message = "Import date is required!")
     @PastOrPresent(message = "Import date cannot be in the future!")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate importDate;
 
     @Column(name = "RentPrice", precision = 10, nullable = false)
