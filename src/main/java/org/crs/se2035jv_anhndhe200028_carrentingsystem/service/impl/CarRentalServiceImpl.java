@@ -184,13 +184,15 @@ public class CarRentalServiceImpl implements CarRentalService {
     @Override
     @Transactional(readOnly = true)
     public RentalReportStatsDTO getReportStats(SearchReportDTO searchReportDTO) {
-        Object[] values = carRentalRepository.findCarRentalReportStats(
+        List<Object[]> resultList = carRentalRepository.findCarRentalReportStats(
                 searchReportDTO.getPickupDate(),
                 searchReportDTO.getReturnDate(),
                 normalizeFilter(searchReportDTO.getFullName()),
                 normalizeFilter(searchReportDTO.getCarName()),
                 parseRentalStatus(searchReportDTO.getStatus())
-        ).orElse(new Object[0]);
+        );
+
+        Object[] values = resultList.isEmpty() ? new Object[0] : resultList.get(0);
 
         return new RentalReportStatsDTO(
                 toLong(valueAt(values, 0)),

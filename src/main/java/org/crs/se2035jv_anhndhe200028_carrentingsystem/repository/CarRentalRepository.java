@@ -98,10 +98,10 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
 
     @Query("""
             SELECT COUNT(cr),
-                   COALESCE(SUM(CASE WHEN cr.status = 'COMPLETED' THEN cr.rentPrice ELSE 0 END), 0),
-                   COALESCE(SUM(CASE WHEN cr.status = 'COMPLETED' THEN 1 ELSE 0 END), 0),
-                   COALESCE(SUM(CASE WHEN cr.status IN ('ACTIVE', 'RENTING') THEN 1 ELSE 0 END), 0),
-                   COALESCE(SUM(CASE WHEN cr.status = 'CANCELED' THEN 1 ELSE 0 END), 0)
+                   COALESCE(SUM(CASE WHEN cr.status = org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus.COMPLETED THEN cr.rentPrice ELSE 0 END), 0),
+                   COALESCE(SUM(CASE WHEN cr.status = org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus.COMPLETED THEN 1 ELSE 0 END), 0),
+                   COALESCE(SUM(CASE WHEN cr.status IN (org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus.ACTIVE, org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus.RENTING) THEN 1 ELSE 0 END), 0),
+                   COALESCE(SUM(CASE WHEN cr.status = org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus.CANCELED THEN 1 ELSE 0 END), 0)
             FROM CarRental cr
             JOIN cr.customer ct
             JOIN cr.car c
@@ -113,7 +113,7 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
               AND (:returnDate IS NULL OR cr.returnDate <= :returnDate)
               AND (:status IS NULL OR cr.status = :status)
             """)
-    Optional<Object[]> findCarRentalReportStats(@Param("pickupDate") LocalDate pickupDate,
+    List<Object[]> findCarRentalReportStats(@Param("pickupDate") LocalDate pickupDate,
                                             @Param("returnDate") LocalDate returnDate,
                                             @Param("fullName") String fullName,
                                             @Param("carName") String carName,
