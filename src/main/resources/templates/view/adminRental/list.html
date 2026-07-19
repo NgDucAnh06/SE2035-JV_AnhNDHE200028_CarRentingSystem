@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Rental Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Operations</div>
+            <h1 class="page-title">Rental Management</h1>
+            <p class="page-subtitle">Open a rental to manage vehicle delivery, return, completion, or cancellation.</p>
+        </div>
+        <span class="status-badge status-active" th:text="${rentalPage.totalElements + ' rentals'}">0 rentals</span>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <h5 class="mb-1">Rental queue</h5>
+            <p class="mb-0 text-muted small">Search rental orders by car name, date range, or status.</p>
+        </div>
+        <div class="px-4 py-3 border-bottom">
+            <form th:action="@{/adminRental/rentalManagement}" method="get"
+                  th:object="${searchRentalDTO}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="carName" class="form-label text-muted small mb-1">Car Name</label>
+                    <input type="text" class="form-control" id="carName" th:field="*{carName}"
+                           placeholder="Enter car name">
+                </div>
+                <div class="col-md-3">
+                    <label for="fromDate" class="form-label text-muted small mb-1">Pickup Date From</label>
+                    <input type="date" class="form-control" id="fromDate" th:field="*{fromDate}">
+                </div>
+                <div class="col-md-3">
+                    <label for="toDate" class="form-label text-muted small mb-1">Return Date To</label>
+                    <input type="date" class="form-control" id="toDate" th:field="*{toDate}">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label text-muted small mb-1">Status</label>
+                    <select class="form-select" id="status" th:field="*{status}">
+                        <option value="">All Statuses</option>
+                        <option value="WAITING_FOR_PICKUP">Waiting for pickup</option>
+                        <option value="RENTING">Renting</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELED">Canceled</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100" style="height: 38px;"
+                            aria-label="Search rentals">
+                        <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="table-responsive" th:if="${!rentalPage.empty}">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Customer</th>
+                    <th>Car</th>
+                    <th>Pickup</th>
+                    <th>Return</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="rental, stat: ${rentalPage.content}">
+                    <td th:text="${rentalPage.number * rentalPage.size + stat.count}">1</td>
+                    <td class="fw-bold text-dark" th:text="${rental.fullName}">Customer</td>
+                    <td th:text="${rental.carName}">Car</td>
+                    <td th:text="${#temporals.format(rental.pickupDate, 'dd/MM/yyyy')}">01/01/2026</td>
+                    <td th:text="${#temporals.format(rental.returnDate, 'dd/MM/yyyy')}">02/01/2026</td>
+                    <td class="fw-bold" th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
+                    <td>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}"
+                              th:text="${#strings.replace(rental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+                    </td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+                            <a th:href="@{/adminRental/{id}/detail(id=${rental.carRenID})}"
+                               class="btn-outline-modern btn-sm">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                View Detail
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${rentalPage.totalPages > 1}"
+             class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 px-4 py-3 border-top">
+            <p class="mb-0 text-muted small"
+               th:text="|Showing ${rentalPage.number * rentalPage.size + 1}-${rentalPage.number * rentalPage.size + rentalPage.numberOfElements} of ${rentalPage.totalElements} rentals|">
+                Showing rental records
+            </p>
+            <nav aria-label="Rental management pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${rentalPage.first} ? 'disabled' : ''">
+                        <a class="page-link"
+                           th:href="@{/adminRental/rentalManagement(page=${rentalPage.number > 0 ? rentalPage.number - 1 : 0}, carName=${searchRentalDTO.carName}, fromDate=${searchRentalDTO.fromDate}, toDate=${searchRentalDTO.toDate}, status=${searchRentalDTO.status})}">
+                            Previous
+                        </a>
+                    </li>
+                    <li class="page-item"
+                        th:each="pageNumber : ${#numbers.sequence(0, rentalPage.totalPages - 1)}"
+                        th:classappend="${pageNumber == rentalPage.number} ? 'active' : ''">
+                        <a class="page-link"
+                           th:href="@{/adminRental/rentalManagement(page=${pageNumber}, carName=${searchRentalDTO.carName}, fromDate=${searchRentalDTO.fromDate}, toDate=${searchRentalDTO.toDate}, status=${searchRentalDTO.status})}"
+                           th:text="${pageNumber + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${rentalPage.last} ? 'disabled' : ''">
+                        <a class="page-link"
+                           th:href="@{/adminRental/rentalManagement(page=${rentalPage.last ? rentalPage.number : rentalPage.number + 1}, carName=${searchRentalDTO.carName}, fromDate=${searchRentalDTO.fromDate}, toDate=${searchRentalDTO.toDate}, status=${searchRentalDTO.status})}">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div th:if="${rentalPage.empty}" class="empty-state">
+            <div class="empty-state-icon"><i data-lucide="calendar-check"></i></div>
+            <h5>No matching rental records</h5>
+            <p class="mb-3">Try changing the car name, date range, or status filter.</p>
+            <a th:href="@{/adminRental/rentalManagement}" class="btn-outline-modern">Clear filters</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -18,12 +18,10 @@
 <body class="d-flex flex-column min-vh-100">
     <div th:replace="~{fragment/header :: header}"></div>
 
-    <div class="container-fluid flex-grow-1 d-flex flex-column flex-md-row p-0">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 bg-white border-end py-4 px-3" th:replace="~{fragment/userSidebar :: userSidebar}"></div>
+    <div class="container-fluid flex-grow-1 d-flex flex-column flex-md-row p-0 app-shell">
+        <aside class="col-md-3 col-xl-2 sidebar-shell py-4 px-3" th:replace="~{fragment/userSidebar :: userSidebar}"></aside>
 
-        <!-- Main Content -->
-        <main class="col-md-9 col-lg-10 p-4 p-lg-5 bg-light motion-container" layout:fragment="content" id="main-content">
+        <main class="col-md-9 col-xl-10 p-3 p-md-4 content-shell motion-container" layout:fragment="content" id="main-content">
             <p>Default content</p>
         </main>
     </div>
@@ -35,11 +33,27 @@
     <!-- Scripts Initialization -->
     <script>
         lucide.createIcons();
-        const { animate } = Motion;
+        const currentPath = window.location.pathname;
+        document.querySelectorAll("[data-active-prefix]").forEach((link) => {
+            const prefixes = link.dataset.activePrefix.split(",");
+            if (prefixes.some((prefix) => currentPath.startsWith(prefix.trim()))) {
+                link.classList.add("active");
+            }
+        });
         document.addEventListener("DOMContentLoaded", () => {
             const mainContent = document.getElementById("main-content");
-            if(mainContent) {
-                animate(mainContent, { opacity: [0, 1], y: [15, 0] }, { duration: 0.5, easing: "ease-out" });
+            if (!mainContent) {
+                return;
+            }
+
+            if (window.Motion && typeof window.Motion.animate === "function") {
+                window.Motion.animate(
+                    mainContent,
+                    { opacity: [0, 1], y: [15, 0] },
+                    { duration: 0.5, easing: "ease-out" }
+                );
+            } else {
+                mainContent.style.opacity = "1";
             }
         });
     </script>

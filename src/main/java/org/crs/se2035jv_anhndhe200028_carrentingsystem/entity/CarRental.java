@@ -1,10 +1,8 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +13,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class CarRental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +37,9 @@ public class CarRental {
     @Column(name = "RentPrice", precision = 10, nullable = false)
     private BigDecimal rentPrice;
 
-    @Column(name = "Status", columnDefinition = "NVARCHAR(10)", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Status", columnDefinition = "NVARCHAR(30)", nullable = false)
+    private RentalStatus status;
 
     @PrePersist
     @PreUpdate

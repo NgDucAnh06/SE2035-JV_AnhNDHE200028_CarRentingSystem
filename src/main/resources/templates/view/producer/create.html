@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${carProducer.producerID == null ? 'Create Producer' : 'Update Producer'}">Create Producer</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Manufacturer editor</div>
+            <h1 class="page-title" th:text="${carProducer.producerID == null ? 'Create Producer' : 'Update Producer'}">Create Producer</h1>
+            <p class="page-subtitle" th:text="${carProducer.producerID == null ? 'Add a new manufacturer to classify vehicles.' : 'Update manufacturer details used by car records.'}">Add a new manufacturer.</p>
+        </div>
+        <a th:href="@{/producer/list}" class="btn-outline-modern">
+            <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+            Back to list
+        </a>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        Producer has been saved successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <h5 class="mb-1">Producer information</h5>
+            <p class="mb-0 text-muted small">Keep names and addresses consistent for cleaner fleet records.</p>
+        </div>
+        <div class="surface-body">
+            <form th:action="@{${carProducer.producerID == null ? '/producer/create' : '/producer/update'}}" th:object="${carProducer}" method="post">
+                <input type="hidden" th:if="${carProducer.producerID != null}" th:field="*{producerID}" />
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label for="producerName" class="form-label-modern">Producer Name</label>
+                        <input type="text" id="producerName" th:field="*{producerName}" class="form-control-modern" placeholder="Toyota" required>
+                        <div th:if="${#fields.hasErrors('producerName')}" th:errors="*{producerName}" class="field-error"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="country" class="form-label-modern">Country</label>
+                        <input type="text" id="country" th:field="*{country}" class="form-control-modern" placeholder="Japan" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="address" class="form-label-modern">Address</label>
+                        <input type="text" id="address" th:field="*{address}" class="form-control-modern" placeholder="Headquarters location" required>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex flex-column flex-sm-row justify-content-end gap-2 border-top pt-4">
+                    <a th:href="@{/producer/list}" class="btn-outline-modern">Cancel</a>
+                    <button type="submit" class="btn-primary-modern">
+                        <i data-lucide="save" style="width: 18px; height: 18px;"></i>
+                        <span th:text="${carProducer.producerID == null ? 'Save Producer' : 'Update Producer'}">Save Producer</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>

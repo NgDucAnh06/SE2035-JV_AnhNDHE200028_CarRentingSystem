@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Accounts</div>
+            <h1 class="page-title">Customer Management</h1>
+            <p class="page-subtitle">Review customer contact, login, and profile information before managing rentals.</p>
+        </div>
+        <span class="status-badge status-available" th:text="${accountPage.totalElements + ' customers'}">0 customers</span>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header">
+            <h5 class="mb-1">Customer directory</h5>
+            <p class="mb-0 text-muted small">All accounts with customer role.</p>
+        </div>
+        <div class="px-4 py-3 border-bottom">
+            <form th:action="@{/adminCustomer/list}" method="get" class="d-flex flex-column flex-sm-row gap-2">
+                <div class="position-relative flex-grow-1">
+                    <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted"
+                       style="left: 14px; width: 18px; height: 18px;"></i>
+                    <input type="search" name="keyword" class="form-control ps-5"
+                           th:value="${keyword}" placeholder="Search by customer name..."
+                           aria-label="Search customers by name">
+                </div>
+                <button type="submit" class="btn-primary-modern justify-content-center">
+                    <i data-lucide="search" style="width: 17px; height: 17px;"></i>
+                    Search
+                </button>
+                <a th:if="${keyword != null and !#strings.isEmpty(keyword)}"
+                   th:href="@{/adminCustomer/list}" class="btn-outline-modern justify-content-center">Clear</a>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Customer</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="account, stat: ${accounts}">
+                    <td th:text="${accountPage.number * accountPage.size + stat.count}">1</td>
+                    <td>
+                        <div class="fw-bold text-dark" th:text="${account.customer != null ? account.customer.fullName : 'No profile'}">Full name</div>
+                        <div class="text-muted small" th:text="${account.role}">CUSTOMER</div>
+                    </td>
+                    <td th:text="${account.customer != null ? account.customer.mobile : 'N/A'}">0900000000</td>
+                    <td th:text="${account.email}">email@example.com</td>
+                    <td th:text="${account.accountName}">username</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+                            <a class="btn-outline-modern btn-sm" th:href="@{/adminCustomer/{id}(id=${account.accountID})}">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                                View
+                            </a>
+                            <form th:action="@{/adminCustomer/{id}/delete(id=${account.accountID})}" method="post"
+                                  onsubmit="return confirm('Are you sure you want to delete this customer?');">
+                                <button type="submit" class="btn-danger-modern btn-sm">
+                                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${accounts == null or #lists.isEmpty(accounts)}">
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="users"></i></div>
+                            <h5>No customers found</h5>
+                            <p class="mb-0">Customer accounts will appear here after signup.</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${accountPage.totalPages > 1}"
+             class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 px-4 py-3 border-top">
+            <p class="mb-0 text-muted small"
+               th:text="|Showing ${accountPage.number * accountPage.size + 1}-${accountPage.number * accountPage.size + accountPage.numberOfElements} of ${accountPage.totalElements}|">
+                Showing results
+            </p>
+            <nav aria-label="Customer pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${accountPage.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/adminCustomer/list(page=${accountPage.number - 1}, keyword=${keyword})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, accountPage.totalPages - 1)}"
+                        th:classappend="${pageNumber == accountPage.number} ? 'active'">
+                        <a class="page-link" th:href="@{/adminCustomer/list(page=${pageNumber}, keyword=${keyword})}"
+                           th:text="${pageNumber + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${accountPage.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/adminCustomer/list(page=${accountPage.number + 1}, keyword=${keyword})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Producer Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Manufacturers</div>
+            <h1 class="page-title">Producer Management</h1>
+            <p class="page-subtitle">Maintain producer information so every car record stays easy to classify.</p>
+        </div>
+        <a th:href="@{/producer/create}" class="btn-primary-modern">
+            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            Add producer
+        </a>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        Producer has been updated successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        The requested producer could not be found.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i data-lucide="check-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i data-lucide="alert-circle" class="me-2" style="width: 18px; height: 18px;"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="surface">
+        <div class="surface-header d-flex align-items-center justify-content-between gap-3">
+            <div>
+                <h5 class="mb-1">Producer directory</h5>
+                <p class="mb-0 text-muted small">Brand, address, and origin details.</p>
+            </div>
+            <span class="status-badge status-confirmed" th:text="${producerPage.totalElements + ' producers'}">0 producers</span>
+        </div>
+        <div class="px-4 py-3 border-bottom">
+            <form th:action="@{/producer/list}" method="get" class="d-flex flex-column flex-sm-row gap-2">
+                <div class="position-relative flex-grow-1">
+                    <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted"
+                       style="left: 14px; width: 18px; height: 18px;"></i>
+                    <input type="search" name="keyword" class="form-control ps-5"
+                           th:value="${keyword}" placeholder="Search by producer name..."
+                           aria-label="Search producers by name">
+                </div>
+                <button type="submit" class="btn-primary-modern justify-content-center">
+                    <i data-lucide="search" style="width: 17px; height: 17px;"></i>
+                    Search
+                </button>
+                <a th:if="${keyword != null and !#strings.isEmpty(keyword)}"
+                   th:href="@{/producer/list}" class="btn-outline-modern justify-content-center">Clear</a>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Producer</th>
+                    <th>Country</th>
+                    <th>Address</th>
+                    <th class="text-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="producer, stat : ${producers}">
+                    <td th:text="${producerPage.number * producerPage.size + stat.count}">1</td>
+                    <td class="fw-bold text-dark" th:text="${producer.producerName}">Toyota</td>
+                    <td th:text="${producer.country}">Japan</td>
+                    <td th:text="${producer.address}">Address</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2 flex-wrap">
+                            <a class="btn-outline-modern btn-sm" th:href="@{/producer/{id}(id=${producer.producerID})}">
+                                <i data-lucide="pen-line" style="width: 16px; height: 16px;"></i>
+                                Edit
+                            </a>
+                            <form th:action="@{/producer/{id}/delete(id=${producer.producerID})}" method="post"
+                                  onsubmit="return confirm('Delete this producer, its cars, and completed or canceled rental history?');">
+                                <button type="submit" class="btn-danger-modern btn-sm">
+                                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${producers == null or #lists.isEmpty(producers)}">
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i data-lucide="factory"></i></div>
+                            <h5>No producers yet</h5>
+                            <p class="mb-3">Create the first producer before adding vehicles.</p>
+                            <a th:href="@{/producer/create}" class="btn-primary-modern">Add producer</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${producerPage.totalPages > 1}"
+             class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 px-4 py-3 border-top">
+            <p class="mb-0 text-muted small"
+               th:text="|Showing ${producerPage.number * producerPage.size + 1}-${producerPage.number * producerPage.size + producerPage.numberOfElements} of ${producerPage.totalElements}|">
+                Showing results
+            </p>
+            <nav aria-label="Producer pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${producerPage.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/producer/list(page=${producerPage.number - 1}, keyword=${keyword})}">Previous</a>
+                    </li>
+                    <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, producerPage.totalPages - 1)}"
+                        th:classappend="${pageNumber == producerPage.number} ? 'active'">
+                        <a class="page-link" th:href="@{/producer/list(page=${pageNumber}, keyword=${keyword})}"
+                           th:text="${pageNumber + 1}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${producerPage.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/producer/list(page=${producerPage.number + 1}, keyword=${keyword})}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+</body>
+</html>

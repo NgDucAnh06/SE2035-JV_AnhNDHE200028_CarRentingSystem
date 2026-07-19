@@ -1,20 +1,22 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.service;
 
 import jakarta.servlet.http.HttpSession;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequestDTO;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequestDTO;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequestDTO;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.ChangePassRequest;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequest;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequest;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
-import org.springframework.validation.BindingResult;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface UserService {
-    Account signin(LoginRequestDTO loginRequestDTO);
-    void signup(RegisterRequestDTO registerRequestDTO);
-    void updateProfile(UpdateProfileRequestDTO updateProfileRequestDTO, HttpSession session);
-    List<Account> getAllAccount();
-    List<Account> getAccountsByRole(String role);
+    Account signin(LoginRequest loginRequest);
+    void signup(RegisterRequest registerRequest);
+    void updateProfile(UpdateProfileRequest updateProfileRequest, HttpSession session);
+    Page<Account> searchCustomersByName(String keyword, Pageable pageable);
     Account getAccountById(Integer id);
-    void delete(Integer id);
+    void deleteCustomer(Integer accountId);
+    void changePassword(Account account, ChangePassRequest changePassRequest, HttpSession session);
 }

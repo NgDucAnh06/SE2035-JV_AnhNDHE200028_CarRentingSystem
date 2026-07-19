@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/user}">
+<head>
+    <meta charset="UTF-8">
+    <title>Rental Detail</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <div class="page-header">
+        <div>
+            <div class="page-eyebrow">Trips</div>
+            <h1 class="page-title">Rental Detail</h1>
+            <p class="page-subtitle">View information about your selected rental.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <form th:if="${carRental.status.name() == 'WAITING_FOR_PICKUP'}"
+                  th:action="@{/carRental/{id}/cancel(id=${carRental.carRenID})}" method="post">
+                <button type="submit" class="btn-danger-modern"
+                        onclick="return confirm('Are you sure you want to cancel this rental?');">
+                    <i data-lucide="x-circle" style="width: 18px; height: 18px;"></i>
+                    Cancel Rental
+                </button>
+            </form>
+            <a th:href="@{/carRental/history}" class="btn btn-outline-secondary">
+                <i data-lucide="arrow-left" style="width: 18px; height: 18px;"></i>
+                Back to History
+            </a>
+        </div>
+    </div>
+
+    <div class="surface mb-4">
+        <div class="surface-header">
+            <h5 class="mb-0">Rental Information</h5>
+        </div>
+        <div class="p-4 bg-light">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Car Name</p>
+                    <p class="fw-medium mb-0 fs-5" th:text="${carRental.car.carName}"></p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Status</p>
+                    <span th:class="'status-badge status-' + ${#strings.toLowerCase(carRental.status)}"
+                          th:text="${#strings.replace(carRental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Total Price</p>
+                    <p class="fw-bold mb-0 text-primary fs-5" th:text="${#numbers.formatDecimal(carRental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Pickup Date</p>
+                    <p class="fw-medium mb-0"
+                       th:text="${#temporals.format(carRental.pickupDate, 'dd/MM/yyyy')}"></p>
+                </div>
+                <div class="col-md-4">
+                    <p class="mb-1 text-muted small text-uppercase fw-bold">Return Date</p>
+                    <p class="fw-medium mb-0"
+                       th:text="${#temporals.format(carRental.returnDate, 'dd/MM/yyyy')}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Section -->
+    <div th:if="${review != null}" class="surface border-primary">
+        <div class="surface-header bg-primary text-white">
+            <h5 class="mb-0 text-white"><i data-lucide="star" style="width: 20px; margin-right: 8px;"></i>Your Review</h5>
+        </div>
+        <div class="p-4">
+            <div class="mb-3">
+                <div class="d-flex align-items-center gap-1 text-warning mb-2">
+                    <span th:each="i : ${#numbers.sequence(1, 5)}">
+                        <i data-lucide="star" th:style="${i <= review.reviewStar ? 'fill: currentColor;' : ''}" style="width: 24px; height: 24px;"></i>
+                    </span>
+                    <span class="ms-2 text-dark fw-bold" th:text="${review.reviewStar} + ' / 5'"></span>
+                </div>
+            </div>
+            <div>
+                <p class="mb-1 fw-bold text-muted small text-uppercase">Note / Comment</p>
+                <p class="mb-0 fst-italic" th:text="${review.comment}"></p>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${review == null and carRental.status.name() == 'COMPLETED'}" class="surface border-warning bg-warning bg-opacity-10">
+        <div class="p-4 text-center">
+            <h5 class="mb-2">How was your trip?</h5>
+            <p class="text-muted mb-3">You haven't left a review for this completed rental yet. Share your experience!</p>
+            <a th:href="@{/review/{id}/form(id=${carRental.carRenID})}" class="btn btn-warning fw-bold text-dark">
+                Leave a Review
+            </a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

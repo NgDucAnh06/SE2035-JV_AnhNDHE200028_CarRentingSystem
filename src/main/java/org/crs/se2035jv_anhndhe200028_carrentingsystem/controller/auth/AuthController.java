@@ -3,8 +3,8 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller.auth;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequestDTO;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequestDTO;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequest;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidationException;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
@@ -26,12 +27,12 @@ public class AuthController {
     //signin
     @GetMapping("/signin")
     public String showSignin(Model model) {
-        model.addAttribute("account", new LoginRequestDTO());
+        model.addAttribute("account", new LoginRequest());
         return "view/auth/signin";
     }
 
     @PostMapping("/signin")
-    public String processSignin(@Valid @ModelAttribute("account") LoginRequestDTO loginRequestDTO,
+    public String processSignin(@Valid @ModelAttribute("account") LoginRequest loginRequest,
                                 BindingResult bindingResult,
                                 HttpSession session) {
         if (bindingResult.hasErrors()) {
@@ -39,7 +40,7 @@ public class AuthController {
         }
 
         try {
-            Account account = userService.signin(loginRequestDTO);
+            Account account = userService.signin(loginRequest);
             if (account.getCustomer() != null) {
                 session.setAttribute("customer", account.getCustomer());
             }
@@ -54,23 +55,31 @@ public class AuthController {
     //signup
     @GetMapping("/signup")
     public String showSignup(Model model) {
-        model.addAttribute("registerDTO", new RegisterRequestDTO());
+        model.addAttribute("registerDTO", new RegisterRequest());
         return "view/auth/signup";
     }
 
     @PostMapping("/signup")
-    public String processSignup(@Valid @ModelAttribute("registerDTO") RegisterRequestDTO registerRequestDTO,
-                                BindingResult bindingResult) {
+    public String processSignup(@Valid @ModelAttribute("registerDTO") RegisterRequest registerRequest,
+                                BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "view/auth/signup";
         }
 
         try {
-            userService.signup(registerRequestDTO);
+            userService.signup(registerRequest);
+            redirectAttributes.addFlashAttribute("successMessage", "Account is created successfully!");
             return "redirect:/auth/signin";
         } catch (CustomValidationException ex) {
             ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
             return "view/auth/signup";
         }
+    }
+
+    //logout
+    @PostMapping("/logout")
+    public String signout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/auth/signin";
     }
 }

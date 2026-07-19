@@ -3,10 +3,8 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.CarStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,6 +15,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,8 +50,9 @@ public class Car {
     @NotNull(message = "Rent price is required!")
     private BigDecimal rentPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "Status", columnDefinition = "NVARCHAR(10)", nullable = false)
-    private String status;
+    private CarStatus status;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "ProducerID", nullable = false)

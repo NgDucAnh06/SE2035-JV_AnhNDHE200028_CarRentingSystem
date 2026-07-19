@@ -8,28 +8,36 @@
 </head>
 <body>
 
-<header th:fragment="header" class="sticky-top bg-white border-bottom shadow-sm">
+<header th:fragment="header" class="sticky-top app-header">
     <nav class="navbar navbar-expand-lg py-3 px-4">
         <div class="container-fluid">
-            <!-- Brand -->
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark" href="/">
-                <i data-lucide="car" class="text-teal" style="color: var(--color-primary);"></i>
-                <span>FU<span style="color: var(--color-primary);">CarRenting</span></span>
+            <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/home}">
+                <span class="brand-mark"><i data-lucide="car-front" style="width: 21px; height: 21px;"></i></span>
+                <span class="brand-text">FU<span>CarRenting</span></span>
             </a>
 
-            <!-- Mobile Toggle -->
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                 <i data-lucide="menu"></i>
             </button>
 
-            <!-- Nav Items -->
             <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
-                    <li class="nav-item">
-                        <a class="nav-link fw-medium text-secondary hover-text-primary" href="/sign-in">Sign in</a>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
+                    <li class="nav-item" th:if="${session.account != null}">
+                        <span class="nav-link fw-semibold text-secondary" th:text="${session.account.accountName}">Account</span>
                     </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary-modern" href="/sign-up">
+                    <li class="nav-item" th:if="${session.account != null}">
+                        <form th:action="@{/auth/logout}" method="post">
+                            <button type="submit" class="btn-outline-modern">
+                                <i data-lucide="log-out" style="width: 17px; height: 17px;"></i>
+                                Log out
+                            </button>
+                        </form>
+                    </li>
+                    <li class="nav-item" th:if="${session.account == null}">
+                        <a class="btn-outline-modern" th:href="@{/auth/signin}">Sign in</a>
+                    </li>
+                    <li class="nav-item" th:if="${session.account == null}">
+                        <a class="btn-primary-modern" th:href="@{/auth/signup}">
                             Sign up
                             <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
                         </a>
