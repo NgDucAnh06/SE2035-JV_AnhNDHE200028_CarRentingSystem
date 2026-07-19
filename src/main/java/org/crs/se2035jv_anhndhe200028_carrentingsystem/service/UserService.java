@@ -2,17 +2,13 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service;
 
 import jakarta.servlet.http.HttpSession;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.ChangePassRequest;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface UserService {
-    Account signin(LoginRequest loginRequest);
     void signup(RegisterRequest registerRequest);
     void updateProfile(UpdateProfileRequest updateProfileRequest, HttpSession session);
     Page<Account> searchCustomersByName(String keyword, Pageable pageable);

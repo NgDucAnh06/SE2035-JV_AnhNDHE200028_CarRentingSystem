@@ -32,7 +32,7 @@
                 <p class="mb-0 text-muted small">Order dates, price, and processing status.</p>
             </div>
             <span th:class="'status-badge status-' + ${#strings.toLowerCase(carRental.status)}"
-                  th:text="${#strings.replace(carRental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+                  th:text="${#strings.replace(carRental.status, '_', ' ')}">ACTIVE</span>
         </div>
         <div class="surface-body">
             <div class="row g-4">
@@ -172,8 +172,8 @@
     </section>
 
     <div class="d-flex justify-content-end gap-2 flex-wrap mt-4"
-         th:if="${carRental.status.name() == 'WAITING_FOR_PICKUP' or carRental.status.name() == 'RENTING'}">
-        <th:block th:if="${carRental.status.name() == 'WAITING_FOR_PICKUP'}">
+         th:if="${carRental.status.name() == 'ACTIVE' or carRental.status.name() == 'RENTING'}">
+        <th:block th:if="${carRental.status.name() == 'ACTIVE'}">
             <form th:action="@{/adminRental/{id}/deliver(id=${carRental.carRenID})}" method="post">
                 <button type="submit" class="btn-soft-modern">
                     <i data-lucide="key-round" style="width: 18px; height: 18px;"></i>

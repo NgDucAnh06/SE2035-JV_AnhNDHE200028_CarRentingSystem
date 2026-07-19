@@ -103,7 +103,7 @@ public class CarProducerServiceImpl implements CarProducerService {
     }
 
     private boolean isActiveRental(CarRental rental) {
-        return rental.getStatus() == RentalStatus.WAITING_FOR_PICKUP
+        return rental.getStatus() == RentalStatus.ACTIVE
                 || rental.getStatus() == RentalStatus.RENTING;
     }
 }

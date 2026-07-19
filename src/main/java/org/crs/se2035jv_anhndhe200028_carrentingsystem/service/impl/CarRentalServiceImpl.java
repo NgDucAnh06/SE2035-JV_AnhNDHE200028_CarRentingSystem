@@ -35,7 +35,7 @@ public class CarRentalServiceImpl implements CarRentalService {
     @Override
     public void save(CarRental carRental) {
         if (carRental.getStatus() == null) {
-            carRental.setStatus(RentalStatus.WAITING_FOR_PICKUP);
+            carRental.setStatus(RentalStatus.ACTIVE);
         }
         
         carRentalRepository.save(carRental);
@@ -79,7 +79,7 @@ public class CarRentalServiceImpl implements CarRentalService {
                         .pickupDate(pickupDate)
                         .returnDate(returnDate)
                         .rentPrice(totalRentalPrice)
-                        .status(RentalStatus.WAITING_FOR_PICKUP)
+                        .status(RentalStatus.ACTIVE)
                         .build();
                 car.setStatus(CarStatus.RENTED);
                 carRepository.save(car);
@@ -148,7 +148,7 @@ public class CarRentalServiceImpl implements CarRentalService {
     }
 
     private boolean isValidStatusTransition(RentalStatus currentStatus, RentalStatus targetStatus) {
-        return (currentStatus == RentalStatus.WAITING_FOR_PICKUP
+        return (currentStatus == RentalStatus.ACTIVE
                 && (targetStatus == RentalStatus.RENTING || targetStatus == RentalStatus.CANCELED))
                 || (currentStatus == RentalStatus.RENTING && targetStatus == RentalStatus.COMPLETED);
     }
@@ -161,7 +161,7 @@ public class CarRentalServiceImpl implements CarRentalService {
             throw new IllegalArgumentException("Rental not found or access denied.");
         }
 
-        if (rental.getStatus() != RentalStatus.WAITING_FOR_PICKUP) {
+        if (rental.getStatus() != RentalStatus.ACTIVE) {
             throw new IllegalStateException("Only rentals waiting for pickup can be canceled.");
         }
 

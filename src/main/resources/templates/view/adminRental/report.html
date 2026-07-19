@@ -91,21 +91,28 @@
                     </div>
                     <div class="col-md-4 col-xl-2">
                         <label for="pickupDate" class="form-label text-muted small mb-1">Pickup Date From</label>
-                        <input type="date" class="form-control" id="pickupDate" th:field="*{pickupDate}">
+                        <input type="date" class="form-control" id="pickupDate" th:field="*{pickupDate}"
+                               th:classappend="${#fields.hasErrors('dateRangeValid')} ? 'is-invalid'">
                     </div>
                     <div class="col-md-4 col-xl-2">
                         <label for="returnDate" class="form-label text-muted small mb-1">Return Date To</label>
-                        <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}">
+                        <input type="date" class="form-control" id="returnDate" th:field="*{returnDate}"
+                               th:classappend="${#fields.hasErrors('dateRangeValid')} ? 'is-invalid'">
                     </div>
                     <div class="col-md-4 col-xl-2">
                         <label for="status" class="form-label text-muted small mb-1">Status</label>
                         <select class="form-select" id="status" th:field="*{status}">
                             <option value="">All Statuses</option>
-                            <option value="WAITING_FOR_PICKUP">Waiting for pickup</option>
+                            <option value="ACTIVE">Active</option>
                             <option value="RENTING">Renting</option>
                             <option value="COMPLETED">Completed</option>
                             <option value="CANCELED">Canceled</option>
                         </select>
+                    </div>
+                    <div class="col-12" th:if="${#fields.hasErrors('dateRangeValid')}">
+                        <div class="field-error" th:errors="*{dateRangeValid}">
+                            Ngày bắt đầu báo cáo phải nhỏ hơn hoặc bằng ngày kết thúc.
+                        </div>
                     </div>
                     <div class="col-12 d-flex justify-content-end gap-2">
                         <a th:href="@{/report/show}" class="btn-outline-modern">
@@ -158,7 +165,7 @@
                         th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
                     <td>
                         <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}"
-                              th:text="${#strings.replace(rental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+                              th:text="${#strings.replace(rental.status, '_', ' ')}">ACTIVE</span>
                     </td>
                     <td class="text-end">
                         <a th:href="@{/adminRental/{id}/detail(id=${rental.carRenID})}"

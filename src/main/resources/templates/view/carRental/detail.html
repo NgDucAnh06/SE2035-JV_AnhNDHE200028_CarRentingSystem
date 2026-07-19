@@ -16,7 +16,7 @@
             <p class="page-subtitle">View information about your selected rental.</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <form th:if="${carRental.status.name() == 'WAITING_FOR_PICKUP'}"
+            <form th:if="${carRental.status.name() == 'ACTIVE'}"
                   th:action="@{/carRental/{id}/cancel(id=${carRental.carRenID})}" method="post">
                 <button type="submit" class="btn-danger-modern"
                         onclick="return confirm('Are you sure you want to cancel this rental?');">
@@ -44,7 +44,7 @@
                 <div class="col-md-4">
                     <p class="mb-1 text-muted small text-uppercase fw-bold">Status</p>
                     <span th:class="'status-badge status-' + ${#strings.toLowerCase(carRental.status)}"
-                          th:text="${#strings.replace(carRental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+                          th:text="${#strings.replace(carRental.status, '_', ' ')}">ACTIVE</span>
                 </div>
                 <div class="col-md-4">
                     <p class="mb-1 text-muted small text-uppercase fw-bold">Total Price</p>

@@ -52,7 +52,7 @@
                     <label for="status" class="form-label text-muted small mb-1">Status</label>
                     <select class="form-select" id="status" th:field="*{status}">
                         <option value="">All Statuses</option>
-                        <option value="WAITING_FOR_PICKUP">Waiting for pickup</option>
+                        <option value="ACTIVE">Active</option>
                         <option value="RENTING">Renting</option>
                         <option value="COMPLETED">Completed</option>
                         <option value="CANCELED">Canceled</option>
@@ -89,7 +89,7 @@
                     <td class="fw-bold" th:text="${#numbers.formatDecimal(rental.rentPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
                     <td>
                         <span th:class="'status-badge status-' + ${#strings.toLowerCase(rental.status)}"
-                              th:text="${#strings.replace(rental.status, '_', ' ')}">WAITING FOR PICKUP</span>
+                              th:text="${#strings.replace(rental.status, '_', ' ')}">ACTIVE</span>
                     </td>
                     <td>
                         <div class="d-flex flex-wrap gap-2">
@@ -104,7 +104,7 @@
                                 <i data-lucide="star" style="width: 16px; height: 16px;"></i>
                                 Review
                             </a>
-                            <form th:if="${rental.status.name() == 'WAITING_FOR_PICKUP'}"
+                            <form th:if="${rental.status.name() == 'ACTIVE'}"
                                   th:action="@{/carRental/{id}/cancel(id=${rental.carRenID})}" method="post">
                                 <button type="submit" class="btn-danger-modern btn-sm"
                                         onclick="return confirm('Are you sure you want to cancel this rental?');">

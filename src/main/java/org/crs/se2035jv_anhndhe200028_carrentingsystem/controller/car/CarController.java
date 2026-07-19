@@ -1,6 +1,7 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller.car;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
@@ -48,7 +49,11 @@ public class CarController {
     }
 
     @PostMapping("/create")
-    public String processCreateCar(@ModelAttribute("car") Car car, BindingResult bindingResult, Model model) {
+    public String processCreateCar(@Valid @ModelAttribute("car") Car car, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("producers", carProducerService.getAll());
+            return "view/car/create";
+        }
         try {
             carService.save(car);
             return "redirect:/car/create?success";
@@ -72,7 +77,11 @@ public class CarController {
     }
 
     @PostMapping("/update")
-    public String processUpdateCar(@ModelAttribute("car") Car car, BindingResult bindingResult, Model model) {
+    public String processUpdateCar(@Valid @ModelAttribute("car") Car car, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("producers", carProducerService.getAll());
+            return "view/car/create";
+        }
         try {
             carService.update(car);
             return "redirect:/car/list?success";
