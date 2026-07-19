@@ -14,6 +14,7 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepos
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -32,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
     private final CarProducerRepository carProducerRepository;
     private final CarRepository carRepository;
     private final CarRentalRepository carRentalRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -40,14 +42,15 @@ public class DataInitializer implements CommandLineRunner {
                 && carProducerRepository.count() == 0
                 && carRepository.count() == 0;
 
+        carRentalRepository.replaceStatus("WAITING_FOR_PICKUP", RentalStatus.ACTIVE.name());
         carRentalRepository.replaceStatus("PENDING", RentalStatus.RENTING.name());
-        carRentalRepository.replaceStatus("ACTIVE", RentalStatus.WAITING_FOR_PICKUP.name());
+        carRentalRepository.replaceStatus("WAITING", RentalStatus.ACTIVE.name());
 
         // Initialize admin account
         if (accountRepository.findByAccountName("admin").isEmpty()) {
             Account admin = Account.builder()
                     .accountName("admin")
-                    .password("admin")
+                    .password(passwordEncoder.encode("admin"))
                     .email("admin@fucar.com")
                     .role("ADMIN")
                     .build();
@@ -59,7 +62,7 @@ public class DataInitializer implements CommandLineRunner {
         if (testUser == null) {
             testUser = Account.builder()
                     .accountName("test")
-                    .password("test@123")
+                    .password(passwordEncoder.encode("test@123"))
                     .email("test@test.com")
                     .role("customer")
                     .build();
@@ -78,6 +81,8 @@ public class DataInitializer implements CommandLineRunner {
             testUser = accountRepository.save(testUser);
         }
 
+        migrateLegacyPasswords();
+
         if (testUser.getCustomer() == null) {
             Customer customer = createTestCustomer(testUser);
             testUser.setCustomer(customer);
@@ -92,6 +97,23 @@ public class DataInitializer implements CommandLineRunner {
             cars = carRepository.findAll();
         }
         initializeRentalHistory(testUser.getCustomer(), cars);
+    }
+
+    private void migrateLegacyPasswords() {
+        List<Account> accountsToMigrate = accountRepository.findAll().stream()
+                .filter(account -> !isBcryptHash(account.getPassword()))
+                .toList();
+
+        accountsToMigrate.forEach(account ->
+                account.setPassword(passwordEncoder.encode(account.getPassword())));
+        if (!accountsToMigrate.isEmpty()) {
+            accountRepository.saveAll(accountsToMigrate);
+        }
+    }
+
+    private boolean isBcryptHash(String password) {
+        return password != null
+                && password.matches("^\\$2[aby]\\$\\d{2}\\$[./A-Za-z0-9]{53}$");
     }
 
     private Customer createTestCustomer(Account account) {

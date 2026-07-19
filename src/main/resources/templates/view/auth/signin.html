@@ -41,6 +41,9 @@
                 <span th:text="${successMessage}"></span>
             </div>
 
+            <div th:if="${logoutMessage}" class="alert alert-success" role="alert" th:text="${logoutMessage}"></div>
+            <div th:if="${loginError}" class="alert alert-danger" role="alert" th:text="${loginError}"></div>
+
             <form th:action="@{/auth/signin}" th:object="${account}" method="post">
                 <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
                     <p class="mb-0" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>

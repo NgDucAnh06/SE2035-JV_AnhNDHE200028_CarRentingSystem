@@ -100,7 +100,7 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
             SELECT COUNT(cr),
                    COALESCE(SUM(CASE WHEN cr.status = 'COMPLETED' THEN cr.rentPrice ELSE 0 END), 0),
                    COALESCE(SUM(CASE WHEN cr.status = 'COMPLETED' THEN 1 ELSE 0 END), 0),
-                   COALESCE(SUM(CASE WHEN cr.status IN ('WAITING_FOR_PICKUP', 'RENTING') THEN 1 ELSE 0 END), 0),
+                   COALESCE(SUM(CASE WHEN cr.status IN ('ACTIVE', 'RENTING') THEN 1 ELSE 0 END), 0),
                    COALESCE(SUM(CASE WHEN cr.status = 'CANCELED' THEN 1 ELSE 0 END), 0)
             FROM CarRental cr
             JOIN cr.customer ct

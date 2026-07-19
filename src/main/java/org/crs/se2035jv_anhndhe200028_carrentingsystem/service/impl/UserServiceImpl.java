@@ -3,7 +3,6 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.ChangePassRequest;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.LoginRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.RegisterRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.UpdateProfileRequest;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
@@ -13,7 +12,6 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Review;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.CarStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
-import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.CustomValidationException;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.AccountRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
@@ -24,6 +22,7 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.UserService;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.utility.InputStandization;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,12 +40,7 @@ public class UserServiceImpl implements UserService {
     private final CarRentalRepository carRentalRepository;
     private final ReviewRepository reviewRepository;
     private final CarRepository carRepository;
-
-    @Override
-    public Account signin(LoginRequest loginRequest) {
-        return accountRepository.findAccountByAccountNameAndPassword(loginRequest.getAccountName(), loginRequest.getPassword())
-                .orElseThrow(() -> new BadCredentialsException("Wrong account name or password!"));
-    }
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void signup(RegisterRequest registerRequest) {
@@ -80,7 +74,7 @@ public class UserServiceImpl implements UserService {
                 .accountName(registerRequest.getAccountName())
                 .email(registerRequest.getEmail())
                 .role("customer")
-                .password(registerRequest.getPassword())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
         
         Customer customer = Customer.builder()
@@ -197,7 +191,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean isCarHeldByRental(RentalStatus status) {
-        return status == RentalStatus.WAITING_FOR_PICKUP
+        return status == RentalStatus.ACTIVE
                 || status == RentalStatus.RENTING;
     }
 
@@ -205,7 +199,7 @@ public class UserServiceImpl implements UserService {
     public void changePassword(Account account, ChangePassRequest changePassRequest, HttpSession session) {
         Map<String, String> errors = new HashMap<>();
 
-        if (!changePassRequest.getOldPassword().equals(account.getPassword())) {
+        if (!passwordEncoder.matches(changePassRequest.getOldPassword(), account.getPassword())) {
             errors.put("oldPassword", "Old password is incorrect!");
         }
 
@@ -213,7 +207,7 @@ public class UserServiceImpl implements UserService {
             errors.put("confirmPassword", "Confirm password does not match!");
         }
 
-        if (changePassRequest.getNewPassword().equals(account.getPassword())) {
+        if (passwordEncoder.matches(changePassRequest.getNewPassword(), account.getPassword())) {
             errors.put("newPassword", "New password must be different from current password!");
         }
 
@@ -222,7 +216,7 @@ public class UserServiceImpl implements UserService {
         }
 
         account = account.toBuilder()
-                .password(changePassRequest.getNewPassword())
+                .password(passwordEncoder.encode(changePassRequest.getNewPassword()))
                 .build();
 
         accountRepository.save(account);

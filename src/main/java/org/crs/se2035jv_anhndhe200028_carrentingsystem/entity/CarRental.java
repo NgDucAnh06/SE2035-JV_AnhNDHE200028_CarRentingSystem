@@ -3,6 +3,7 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
+import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -38,7 +39,8 @@ public class CarRental {
     private BigDecimal rentPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", columnDefinition = "NVARCHAR(30)", nullable = false)
+    @Nationalized
+    @Column(name = "Status", length = 10, nullable = false)
     private RentalStatus status;
 
     @PrePersist

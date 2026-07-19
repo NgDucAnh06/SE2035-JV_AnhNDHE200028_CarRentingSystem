@@ -1,6 +1,7 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.controller.car;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarProducer;
@@ -45,7 +46,10 @@ public class CarProducerController {
     }
 
     @PostMapping("/create")
-    public String processCreateProducer(@ModelAttribute("carProducer") CarProducer carProducer, BindingResult bindingResult) {
+    public String processCreateProducer(@Valid @ModelAttribute("carProducer") CarProducer carProducer, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "view/producer/create";
+        }
         try {
             carProducerService.save(carProducer);
             return "redirect:/producer/create?success";
@@ -67,7 +71,10 @@ public class CarProducerController {
     }
 
     @PostMapping("/update")
-    public String processUpdateProducer(@ModelAttribute("carProducer") CarProducer carProducer, BindingResult bindingResult) {
+    public String processUpdateProducer(@Valid @ModelAttribute("carProducer") CarProducer carProducer, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "view/producer/create";
+        }
         try {
             carProducerService.update(carProducer);
             return "redirect:/producer/list?success";
