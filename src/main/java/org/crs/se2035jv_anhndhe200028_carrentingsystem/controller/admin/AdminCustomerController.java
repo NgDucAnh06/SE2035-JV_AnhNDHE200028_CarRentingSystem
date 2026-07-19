@@ -20,7 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/adminCustomer")
 @RequiredArgsConstructor
 public class AdminCustomerController {
-    private static final int PAGE_SIZE = 10;
 
     private final UserService userService;
 
@@ -32,7 +31,7 @@ public class AdminCustomerController {
         String normalizedKeyword = keyword.trim();
         Page<Account> accountPage = userService.searchCustomersByName(
                 normalizedKeyword,
-                PageRequest.of(Math.max(page, 0), PAGE_SIZE, Sort.by("accountID").descending())
+                PageRequest.of(Math.max(page, 0), 10, Sort.by("accountID").descending())
         );
         model.addAttribute("accountPage", accountPage);
         model.addAttribute("accounts", accountPage.getContent());

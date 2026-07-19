@@ -16,7 +16,7 @@
             <p class="page-subtitle">View information about your selected rental.</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <form th:if="${carRental.status == 'WAITING_FOR_PICKUP'}"
+            <form th:if="${carRental.status.name() == 'WAITING_FOR_PICKUP'}"
                   th:action="@{/carRental/{id}/cancel(id=${carRental.carRenID})}" method="post">
                 <button type="submit" class="btn-danger-modern"
                         onclick="return confirm('Are you sure you want to cancel this rental?');">
@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <div th:if="${review == null and carRental.status == 'COMPLETED'}" class="surface border-warning bg-warning bg-opacity-10">
+    <div th:if="${review == null and carRental.status.name() == 'COMPLETED'}" class="surface border-warning bg-warning bg-opacity-10">
         <div class="p-4 text-center">
             <h5 class="mb-2">How was your trip?</h5>
             <p class="text-muted mb-3">You haven't left a review for this completed rental yet. Share your experience!</p>

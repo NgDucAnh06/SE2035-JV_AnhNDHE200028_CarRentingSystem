@@ -30,17 +30,16 @@ public class AccountController {
 
     @GetMapping("/updateProfile")
     public String updateProfile(Model model, HttpSession session) {
-        UpdateProfileRequest updateProfileDTO = new UpdateProfileRequest();
         Account account = (Account) session.getAttribute("account");
         Customer customer = (Customer) session.getAttribute("customer");
 
-        updateProfileDTO.setEmail(account.getEmail());
-        updateProfileDTO.setFullName(customer.getFullName());
-        updateProfileDTO.setMobile(customer.getMobile());
-        updateProfileDTO.setBirthday(customer.getBirthday());
-        updateProfileDTO.setIdentityCard(customer.getIdentityCard());
-        updateProfileDTO.setLicenceNum(customer.getLicenceNumber());
-        updateProfileDTO.setLicenceDate(customer.getLicenceDate());
+        UpdateProfileRequest updateProfileDTO = UpdateProfileRequest.builder().email(account.getEmail())
+                .fullName(customer.getFullName())
+                .birthday(customer.getBirthday())
+                .mobile(customer.getMobile())
+                .identityCard(customer.getIdentityCard())
+                .licenceNum(customer.getLicenceNumber())
+                .licenceDate(customer.getLicenceDate()).build();
 
         model.addAttribute("updateProfileDTO", updateProfileDTO);
         return "view/account/update";
@@ -60,7 +59,7 @@ public class AccountController {
         } catch (CustomValidationException ex) {
             ex.getErrors().forEach((field, message) -> bindingResult.rejectValue(field, "error." + field, message));
             return "view/account/update";
-        } 
+        }
     }
 
     @GetMapping("/changePassword")

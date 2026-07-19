@@ -172,8 +172,8 @@
     </section>
 
     <div class="d-flex justify-content-end gap-2 flex-wrap mt-4"
-         th:if="${carRental.status == 'WAITING_FOR_PICKUP' or carRental.status == 'RENTING'}">
-        <th:block th:if="${carRental.status == 'WAITING_FOR_PICKUP'}">
+         th:if="${carRental.status.name() == 'WAITING_FOR_PICKUP' or carRental.status.name() == 'RENTING'}">
+        <th:block th:if="${carRental.status.name() == 'WAITING_FOR_PICKUP'}">
             <form th:action="@{/adminRental/{id}/deliver(id=${carRental.carRenID})}" method="post">
                 <button type="submit" class="btn-soft-modern">
                     <i data-lucide="key-round" style="width: 18px; height: 18px;"></i>
@@ -188,7 +188,7 @@
                 </button>
             </form>
         </th:block>
-        <form th:if="${carRental.status == 'RENTING'}"
+        <form th:if="${carRental.status.name() == 'RENTING'}"
               th:action="@{/adminRental/{id}/complete(id=${carRental.carRenID})}" method="post">
             <button type="submit" class="btn-soft-modern"
                     onclick="return confirm('Confirm that the customer returned the car?');">

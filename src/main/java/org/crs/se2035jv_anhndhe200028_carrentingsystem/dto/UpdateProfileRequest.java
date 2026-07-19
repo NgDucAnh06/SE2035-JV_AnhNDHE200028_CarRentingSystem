@@ -1,6 +1,7 @@
 package org.crs.se2035jv_anhndhe200028_carrentingsystem.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@Builder
 public class UpdateProfileRequest {
     @NotBlank(message = "Fullname is required!")
     private String fullName;

@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
     boolean existsByCarRental(CarRental carRental);
     boolean existsByCarRental_CarRenID(Integer carRenID);
-    List<Review> findByCarRentalIn(List<CarRental> carRentals);
+    Optional<Review> findByCarRentalIn(List<CarRental> carRentals);
     Optional<Review> findByCarRental(CarRental carRental);
 }

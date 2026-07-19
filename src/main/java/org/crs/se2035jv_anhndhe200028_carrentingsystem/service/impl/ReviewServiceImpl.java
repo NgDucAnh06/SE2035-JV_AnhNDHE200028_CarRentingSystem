@@ -3,6 +3,7 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Review;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.ReviewRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.ReviewService;
@@ -29,7 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
         CarRental carRental = carRentalRepository.findById(carRenId)
                 .orElseThrow(() -> new IllegalArgumentException("Car rental not found"));
 
-        if (!"COMPLETED".equals(carRental.getStatus())) {
+        if (carRental.getStatus() != RentalStatus.COMPLETED) {
             throw new IllegalArgumentException("Can only review completed rentals.");
         }
 
@@ -49,9 +50,9 @@ public class ReviewServiceImpl implements ReviewService {
             return Collections.emptyList();
         }
 
-        return reviewRepository.findByCarRentalIn(rentals).stream()
-                .map(review -> review.getCarRental().getCarRenID())
-                .toList();
+        return reviewRepository.findByCarRentalIn(rentals)
+                .map(review -> List.of(review.getCarRental().getCarRenID()))
+                .orElse(Collections.emptyList());
     }
 
     @Override

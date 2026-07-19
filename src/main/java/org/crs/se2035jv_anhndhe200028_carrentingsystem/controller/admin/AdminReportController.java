@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/report")
 @RequiredArgsConstructor
 public class AdminReportController {
-    private static final int PAGE_SIZE = 10;
 
     private final CarRentalService carRentalService;
 
@@ -26,7 +25,7 @@ public class AdminReportController {
     public String showReport(@RequestParam(defaultValue = "0") int page,
                              @ModelAttribute("searchReportDTO") SearchReportDTO searchReportDTO,
                              Model model) {
-        Pageable pageable = PageRequest.of(Math.max(page, 0), PAGE_SIZE);
+        Pageable pageable = PageRequest.of(Math.max(page, 0), 10);
         Page<RentalSummaryDTO> reportPage = carRentalService.showReport(searchReportDTO, pageable);
         model.addAttribute("reportPage", reportPage);
         model.addAttribute("reportStats", carRentalService.getReportStats(searchReportDTO));

@@ -168,7 +168,7 @@ public class DataInitializer implements CommandLineRunner {
                         .description("Well-maintained " + seed.name() + " with automatic transmission and air conditioning.")
                         .importDate(LocalDate.now().minusMonths(index + 2L))
                         .rentPrice(BigDecimal.valueOf(seed.dailyPrice()))
-                        .status(CarStatus.AVAILABLE.name())
+                        .status(CarStatus.AVAILABLE)
                         .producer(producers.get(seed.producerName()))
                         .build());
             }
@@ -183,7 +183,7 @@ public class DataInitializer implements CommandLineRunner {
         for (int index = 0; index < historySize; index++) {
             Car car = cars.get(index);
             if (carRentalRepository.existsByCustomerAndCarAndStatus(
-                    customer, car, RentalStatus.COMPLETED.name())) {
+                    customer, car, RentalStatus.COMPLETED)) {
                 continue;
             }
 
@@ -197,7 +197,7 @@ public class DataInitializer implements CommandLineRunner {
                     .pickupDate(pickupDate)
                     .returnDate(returnDate)
                     .rentPrice(car.getRentPrice().multiply(BigDecimal.valueOf(rentalDays)))
-                    .status(RentalStatus.COMPLETED.name())
+                    .status(RentalStatus.COMPLETED)
                     .build());
         }
     }

@@ -43,34 +43,31 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Account signin(LoginRequest loginRequest) {
-        Account account = accountRepository.findAccountByAccountNameAndPassword(loginRequest.getAccountName(), loginRequest.getPassword());
-        if (account == null) {
-            throw new BadCredentialsException("Wrong account name or password!");
-        }
-        return account;
+        return accountRepository.findAccountByAccountNameAndPassword(loginRequest.getAccountName(), loginRequest.getPassword())
+                .orElseThrow(() -> new BadCredentialsException("Wrong account name or password!"));
     }
 
     @Override
     public void signup(RegisterRequest registerRequest) {
-        java.util.Map<String, String> errors = new java.util.HashMap<>();
+        Map<String, String> errors = new HashMap<>();
 
-        if (accountRepository.findAccountByEmail(registerRequest.getEmail()) != null) {
+        if (accountRepository.findAccountByEmail(registerRequest.getEmail()).isPresent()) {
             errors.put("email", "Email already exists!");
         }
 
-        if (accountRepository.findByAccountName(registerRequest.getAccountName()) != null) {
+        if (accountRepository.findByAccountName(registerRequest.getAccountName()).isPresent()) {
             errors.put("accountName", "Account name already exists!");
         }
 
-        if (customerRepository.findCustomerByMobile(registerRequest.getMobile()) != null) {
+        if (customerRepository.findCustomerByMobile(registerRequest.getMobile()).isPresent()) {
             errors.put("mobile", "Mobile already exists!");
         }
 
-        if (customerRepository.findCustomerByIdentityCard(registerRequest.getIdentityCard()) != null) {
+        if (customerRepository.findCustomerByIdentityCard(registerRequest.getIdentityCard()).isPresent()) {
             errors.put("identityCard", "Identity card already exists!");
         }
 
-        if (customerRepository.findCustomerByLicenceNumber(registerRequest.getLicenceNum()) != null) {
+        if (customerRepository.findCustomerByLicenceNumber(registerRequest.getLicenceNum()).isPresent()) {
             errors.put("licenceNum", "Licence number already exists!");
         }
 
@@ -107,37 +104,32 @@ public class UserServiceImpl implements UserService {
 
         Map<String, String> errors = new HashMap<>();
 
-        Account checkAccount = accountRepository.findAccountByEmail(updateProfileRequest.getEmail());
-        if (checkAccount != null && !checkAccount.getAccountID().equals(accountId)) {
-            errors.put("email", "Email already exists!");
-        }
+        accountRepository.findAccountByEmail(updateProfileRequest.getEmail())
+                .filter(existing -> !existing.getAccountID().equals(accountId))
+                .ifPresent(existing -> errors.put("email", "Email already exists!"));
 
-        Customer checkCustomer = customerRepository.findCustomerByMobile(updateProfileRequest.getMobile());
-        if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
-            errors.put("mobile", "Mobile already exists!");
-        }
+        customerRepository.findCustomerByMobile(updateProfileRequest.getMobile())
+                .filter(existing -> !existing.getCustomerID().equals(customerId))
+                .ifPresent(existing -> errors.put("mobile", "Mobile already exists!"));
 
-        checkCustomer = customerRepository.findCustomerByIdentityCard(updateProfileRequest.getIdentityCard());
-        if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
-            errors.put("identityCard", "Identity card already exists!");
-        }
+        customerRepository.findCustomerByIdentityCard(updateProfileRequest.getIdentityCard())
+                .filter(existing -> !existing.getCustomerID().equals(customerId))
+                .ifPresent(existing -> errors.put("identityCard", "Identity card already exists!"));
 
-        checkCustomer = customerRepository.findCustomerByLicenceNumber(updateProfileRequest.getLicenceNum());
-        if (checkCustomer != null && !checkCustomer.getCustomerID().equals(customerId)) {
-            errors.put("licenceNum", "Licence number already exists!");
-        }
+        customerRepository.findCustomerByLicenceNumber(updateProfileRequest.getLicenceNum())
+                .filter(existing -> !existing.getCustomerID().equals(customerId))
+                .ifPresent(existing -> errors.put("licenceNum", "Licence number already exists!"));
 
         if (!errors.isEmpty()) {
             throw new CustomValidationException(errors);
         }
 
-        Account account = accountRepository.findById(accountId).orElse(sessionAccount);
-        account = account.toBuilder()
+        sessionAccount = sessionAccount.toBuilder()
                 .email(updateProfileRequest.getEmail())
                 .build();
 
-        if (account.getCustomer() != null) {
-            Customer updatedCustomer = account.getCustomer().toBuilder()
+        if (sessionAccount.getCustomer() != null) {
+            Customer updatedCustomer = sessionAccount.getCustomer().toBuilder()
                     .birthday(updateProfileRequest.getBirthday())
                     .mobile(updateProfileRequest.getMobile())
                     .fullName(InputStandization.formatName(updateProfileRequest.getFullName()))
@@ -145,25 +137,15 @@ public class UserServiceImpl implements UserService {
                     .licenceNumber(updateProfileRequest.getLicenceNum())
                     .licenceDate(updateProfileRequest.getLicenceDate())
                     .build();
-            account = account.toBuilder()
+            sessionAccount = sessionAccount.toBuilder()
                     .customer(updatedCustomer)
                     .build();
         }
 
-        accountRepository.save(account);
+        accountRepository.save(sessionAccount);
 
-        session.setAttribute("account", account);
-        session.setAttribute("customer", account.getCustomer());
-    }
-
-    @Override
-    public List<Account> getAllAccount() {
-        return accountRepository.findAll();
-    }
-
-    @Override
-    public List<Account> getAccountsByRole(String role) {
-        return accountRepository.findByRole(role);
+        session.setAttribute("account", sessionAccount);
+        session.setAttribute("customer", sessionAccount.getCustomer());
     }
 
     @Override
@@ -175,7 +157,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Account getAccountById(Integer id) {
-        return accountRepository.findAccountByAccountID(id);
+        return accountRepository.findAccountByAccountID(id).orElse(null);
     }
 
     @Override
@@ -189,19 +171,23 @@ public class UserServiceImpl implements UserService {
 
         Customer customer = account.getCustomer();
         if (customer != null) {
-            List<CarRental> rentals = carRentalRepository.findAllByCustomer(customer);
+            List<CarRental> rentals = carRentalRepository.findAllByCustomer(customer)
+                    .map(List::of)
+                    .orElse(List.of());
 
             for (CarRental rental : rentals) {
                 if (isCarHeldByRental(rental.getStatus()) && rental.getCar() != null) {
                     Car car = rental.getCar();
-                    car.setStatus(CarStatus.AVAILABLE.name());
+                    car.setStatus(CarStatus.AVAILABLE);
                     carRepository.save(car);
                 }
             }
 
             if (!rentals.isEmpty()) {
-                reviewRepository.deleteAll(reviewRepository.findByCarRentalIn(rentals));
-                reviewRepository.flush();
+                reviewRepository.findByCarRentalIn(rentals).ifPresent(review -> {
+                    reviewRepository.delete(review);
+                    reviewRepository.flush();
+                });
                 carRentalRepository.deleteAll(rentals);
                 carRentalRepository.flush();
             }
@@ -210,11 +196,9 @@ public class UserServiceImpl implements UserService {
         accountRepository.delete(account);
     }
 
-    private boolean isCarHeldByRental(String status) {
-        return RentalStatus.WAITING_FOR_PICKUP.name().equals(status)
-                || RentalStatus.RENTING.name().equals(status)
-                || "ACTIVE".equals(status)
-                || "PENDING".equals(status);
+    private boolean isCarHeldByRental(RentalStatus status) {
+        return status == RentalStatus.WAITING_FOR_PICKUP
+                || status == RentalStatus.RENTING;
     }
 
     @Override

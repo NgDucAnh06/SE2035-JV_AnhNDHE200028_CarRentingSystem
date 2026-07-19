@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.dto.ReviewDTO;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.service.ReviewService;
 import org.springframework.stereotype.Controller;
@@ -35,7 +36,7 @@ public class ReviewController {
             return "redirect:/carRental/history";
         }
 
-        if (!"COMPLETED".equals(carRental.getStatus())) {
+        if (carRental.getStatus() != RentalStatus.COMPLETED) {
             redirectAttributes.addFlashAttribute("errorMessage", "Can only review completed rentals.");
             return "redirect:/carRental/detail/" + carRenId;
         }

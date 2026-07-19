@@ -98,13 +98,13 @@
                                 <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
                                 View Detail
                             </a>
-                            <a th:if="${rental.status == 'COMPLETED' and !#lists.contains(reviewedRentalIds, rental.carRenID)}"
+                            <a th:if="${rental.status.name() == 'COMPLETED' and !#lists.contains(reviewedRentalIds, rental.carRenID)}"
                                th:href="@{/review/{id}/form(id=${rental.carRenID})}"
                                class="btn btn-warning btn-sm">
                                 <i data-lucide="star" style="width: 16px; height: 16px;"></i>
                                 Review
                             </a>
-                            <form th:if="${rental.status == 'WAITING_FOR_PICKUP'}"
+                            <form th:if="${rental.status.name() == 'WAITING_FOR_PICKUP'}"
                                   th:action="@{/carRental/{id}/cancel(id=${rental.carRenID})}" method="post">
                                 <button type="submit" class="btn-danger-modern btn-sm"
                                         onclick="return confirm('Are you sure you want to cancel this rental?');">

@@ -7,13 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
-    Account findByAccountName(String accountName);
-    Account findAccountByAccountNameAndPassword(String accountName, String password);
-    Account findAccountByEmail(String email);
-    List<Account> findByRole(String role);
+    Optional<Account> findByAccountName(String accountName);
+    Optional<Account> findAccountByAccountNameAndPassword(String accountName, String password);
+    Optional<Account> findAccountByEmail(String email);
+    Optional<Account> findByRole(String role);
 
     @Query("""
             SELECT a FROM Account a
@@ -26,5 +26,5 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
                                        @Param("keyword") String keyword,
                                        Pageable pageable);
 
-    Account findAccountByAccountID(Integer accountID);
+    Optional<Account> findAccountByAccountID(Integer accountID);
 }

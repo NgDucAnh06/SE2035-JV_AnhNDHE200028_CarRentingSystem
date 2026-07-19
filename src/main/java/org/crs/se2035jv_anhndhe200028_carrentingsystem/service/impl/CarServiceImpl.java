@@ -28,7 +28,7 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public void save(Car car) {
-        if (carRepository.findByCarName(car.getCarName()) != null) {
+        if (carRepository.findByCarName(car.getCarName()).isPresent()) {
             throw new DuplicateResourceException("Car name already exists!");
         }
         carRepository.save(car);
@@ -36,10 +36,11 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public void update(Car car) {
-        Car oldCar = carRepository.findByCarName(car.getCarName());
-        if (oldCar != null && !oldCar.getCarID().equals(car.getCarID())) {
-            throw new DuplicateResourceException("Car name  already exists!");
-        }
+        carRepository.findByCarName(car.getCarName())
+                .filter(existing -> !existing.getCarID().equals(car.getCarID()))
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException("Car name  already exists!");
+                });
         carRepository.save(car);
     }
 
@@ -55,7 +56,9 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public List<Car> findAvailableCars() {
-        return carRepository.findByStatus("AVAILABLE");
+        return carRepository.findByStatus(CarStatus.AVAILABLE)
+                .map(List::of)
+                .orElse(List.of());
     }
 
     @Override
@@ -81,7 +84,9 @@ public class CarServiceImpl implements CarService {
     public void deleteCar(Integer id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Car not found."));
-        List<CarRental> rentals = carRentalRepository.findAllByCar(car);
+        List<CarRental> rentals = carRentalRepository.findAllByCar(car)
+                .map(List::of)
+                .orElse(List.of());
 
         if (rentals.stream().anyMatch(this::isActiveRental)) {
             throw new IllegalStateException(
@@ -94,16 +99,18 @@ public class CarServiceImpl implements CarService {
     }
 
     private boolean isActiveRental(CarRental rental) {
-        return RentalStatus.WAITING_FOR_PICKUP.name().equals(rental.getStatus())
-                || RentalStatus.RENTING.name().equals(rental.getStatus());
+        return rental.getStatus() == RentalStatus.WAITING_FOR_PICKUP
+                || rental.getStatus() == RentalStatus.RENTING;
     }
 
     private void deleteRentalHistory(List<CarRental> rentals) {
         if (rentals.isEmpty()) {
             return;
         }
-        reviewRepository.deleteAll(reviewRepository.findByCarRentalIn(rentals));
-        reviewRepository.flush();
+        reviewRepository.findByCarRentalIn(rentals).ifPresent(review -> {
+            reviewRepository.delete(review);
+            reviewRepository.flush();
+        });
         carRentalRepository.deleteAll(rentals);
         carRentalRepository.flush();
     }

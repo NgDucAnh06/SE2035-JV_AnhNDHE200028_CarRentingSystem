@@ -27,7 +27,6 @@ import static org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus
 @RequestMapping("/adminRental")
 @RequiredArgsConstructor
 public class AdminRentalController {
-    private static final int PAGE_SIZE = 10;
 
     private final CarRentalService carRentalService;
     private final ReviewService reviewService;
@@ -36,7 +35,7 @@ public class AdminRentalController {
     public String showRentalManagement(@RequestParam(defaultValue = "0") int page,
                                        @ModelAttribute("searchRentalDTO") SearchHistoryRequest searchRequest,
                                        Model model) {
-        Pageable pageable = PageRequest.of(Math.max(page, 0), PAGE_SIZE);
+        Pageable pageable = PageRequest.of(Math.max(page, 0), 10);
         Page<RentalSummaryDTO> rentalPage = carRentalService.showManagement(searchRequest, pageable);
         model.addAttribute("searchRentalDTO", searchRequest);
         model.addAttribute("rentalPage", rentalPage);
@@ -58,19 +57,19 @@ public class AdminRentalController {
 
     @PostMapping("/{id}/deliver")
     public String deliverRental(@PathVariable("id") Integer id) {
-        carRentalService.updateStatus(id, RENTING.name());
+        carRentalService.updateStatus(id, RENTING);
         return "redirect:/adminRental/" + id + "/detail";
     }
 
     @PostMapping("/{id}/complete")
     public String completeRental(@PathVariable("id") Integer id) {
-        carRentalService.updateStatus(id, COMPLETED.name());
+        carRentalService.updateStatus(id, COMPLETED);
         return "redirect:/adminRental/" + id + "/detail";
     }
 
     @PostMapping("/{id}/cancel")
     public String cancelRental(@PathVariable("id") Integer id) {
-        carRentalService.updateStatus(id, CANCELED.name());
+        carRentalService.updateStatus(id, CANCELED);
         return "redirect:/adminRental/" + id + "/detail";
     }
 }

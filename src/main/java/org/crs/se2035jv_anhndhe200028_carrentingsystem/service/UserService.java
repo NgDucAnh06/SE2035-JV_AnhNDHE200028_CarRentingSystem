@@ -15,8 +15,6 @@ public interface UserService {
     Account signin(LoginRequest loginRequest);
     void signup(RegisterRequest registerRequest);
     void updateProfile(UpdateProfileRequest updateProfileRequest, HttpSession session);
-    List<Account> getAllAccount();
-    List<Account> getAccountsByRole(String role);
     Page<Account> searchCustomersByName(String keyword, Pageable pageable);
     Account getAccountById(Integer id);
     void deleteCustomer(Integer accountId);

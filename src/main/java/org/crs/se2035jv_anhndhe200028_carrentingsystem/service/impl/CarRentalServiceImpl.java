@@ -35,7 +35,7 @@ public class CarRentalServiceImpl implements CarRentalService {
     @Override
     public void save(CarRental carRental) {
         if (carRental.getStatus() == null) {
-            carRental.setStatus(RentalStatus.WAITING_FOR_PICKUP.name());
+            carRental.setStatus(RentalStatus.WAITING_FOR_PICKUP);
         }
         
         carRentalRepository.save(carRental);
@@ -43,7 +43,7 @@ public class CarRentalServiceImpl implements CarRentalService {
         if (carRental.getCar() != null && carRental.getCar().getCarID() != null) {
             Car car = carRepository.findById(carRental.getCar().getCarID())
                     .orElseThrow(() -> new IllegalArgumentException("Car not found"));
-            car.setStatus(CarStatus.RENTED.name());
+            car.setStatus(CarStatus.RENTED);
             carRepository.save(car);
         }
     }
@@ -70,7 +70,7 @@ public class CarRentalServiceImpl implements CarRentalService {
         }
         for (Integer carId : carIds) {
             Car car = carRepository.findById(carId).orElse(null);
-            if (car != null && CarStatus.AVAILABLE.name().equals(car.getStatus())) {
+            if (car != null && car.getStatus() == CarStatus.AVAILABLE) {
                 long days = ChronoUnit.DAYS.between(pickupDate, returnDate);
                 if (days <= 0) {
                     days = 1;
@@ -82,9 +82,9 @@ public class CarRentalServiceImpl implements CarRentalService {
                         .pickupDate(pickupDate)
                         .returnDate(returnDate)
                         .rentPrice(totalRentalPrice)
-                        .status(RentalStatus.WAITING_FOR_PICKUP.name())
+                        .status(RentalStatus.WAITING_FOR_PICKUP)
                         .build();
-                car.setStatus(CarStatus.RENTED.name());
+                car.setStatus(CarStatus.RENTED);
                 carRepository.save(car);
                 this.save(rental);
             }
@@ -113,10 +113,9 @@ public class CarRentalServiceImpl implements CarRentalService {
     }
 
     @Override
-    public void updateStatus(Integer id, String status) {
+    public void updateStatus(Integer id, RentalStatus targetStatus) {
         CarRental rental = carRentalRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Rental not found"));
-        RentalStatus currentStatus = RentalStatus.valueOf(rental.getStatus());
-        RentalStatus targetStatus = RentalStatus.valueOf(status);
+        RentalStatus currentStatus = rental.getStatus();
 
         if (!isValidStatusTransition(currentStatus, targetStatus)) {
             throw new IllegalStateException(
@@ -124,16 +123,16 @@ public class CarRentalServiceImpl implements CarRentalService {
             );
         }
 
-        rental.setStatus(targetStatus.name());
+        rental.setStatus(targetStatus);
         carRentalRepository.save(rental);
 
         if (rental.getCar() != null && rental.getCar().getCarID() != null) {
             Car car = carRepository.findById(rental.getCar().getCarID()).orElse(null);
             if (car != null) {
                 if (targetStatus == RentalStatus.COMPLETED || targetStatus == RentalStatus.CANCELED) {
-                    car.setStatus(CarStatus.AVAILABLE.name());
+                    car.setStatus(CarStatus.AVAILABLE);
                 } else {
-                    car.setStatus(CarStatus.RENTED.name());
+                    car.setStatus(CarStatus.RENTED);
                 }
                 carRepository.save(car);
             }
@@ -154,11 +153,11 @@ public class CarRentalServiceImpl implements CarRentalService {
             throw new IllegalArgumentException("Rental not found or access denied.");
         }
 
-        if (!RentalStatus.WAITING_FOR_PICKUP.name().equals(rental.getStatus())) {
+        if (rental.getStatus() != RentalStatus.WAITING_FOR_PICKUP) {
             throw new IllegalStateException("Only rentals waiting for pickup can be canceled.");
         }
 
-        updateStatus(id, RentalStatus.CANCELED.name());
+        updateStatus(id, RentalStatus.CANCELED);
     }
 
     @Override
@@ -177,15 +176,13 @@ public class CarRentalServiceImpl implements CarRentalService {
     @Override
     @Transactional(readOnly = true)
     public RentalReportStatsDTO getReportStats(SearchReportDTO searchReportDTO) {
-        List<Object[]> rows = carRentalRepository.findCarRentalReportStats(
+        Object[] values = carRentalRepository.findCarRentalReportStats(
                 searchReportDTO.getPickupDate(),
                 searchReportDTO.getReturnDate(),
                 normalizeFilter(searchReportDTO.getFullName()),
                 normalizeFilter(searchReportDTO.getCarName()),
                 normalizeFilter(searchReportDTO.getStatus())
-        );
-
-        Object[] values = rows.isEmpty() ? new Object[0] : rows.getFirst();
+        ).orElse(new Object[0]);
 
         return new RentalReportStatsDTO(
                 toLong(valueAt(values, 0)),
@@ -213,7 +210,7 @@ public class CarRentalServiceImpl implements CarRentalService {
 
     @Override
     public Page<CarRental> getCompletedRentals(Customer customer, Pageable pageable) {
-        return carRentalRepository.findByCustomerAndStatus(customer, RentalStatus.COMPLETED.name(), pageable);
+        return carRentalRepository.findByCustomerAndStatus(customer, RentalStatus.COMPLETED, pageable);
     }
 
     @Override

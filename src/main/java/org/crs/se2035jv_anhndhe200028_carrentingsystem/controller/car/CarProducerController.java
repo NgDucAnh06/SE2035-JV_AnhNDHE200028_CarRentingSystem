@@ -19,7 +19,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/producer")
 @RequiredArgsConstructor
 public class CarProducerController {
-    private static final int PAGE_SIZE = 10;
 
     private final CarProducerService carProducerService;
 
@@ -30,7 +29,7 @@ public class CarProducerController {
         String normalizedKeyword = keyword.trim();
         Page<CarProducer> producerPage = carProducerService.searchProducersByName(
                 normalizedKeyword,
-                PageRequest.of(Math.max(page, 0), PAGE_SIZE, Sort.by("producerID").descending())
+                PageRequest.of(Math.max(page, 0), 10, Sort.by("producerID").descending())
         );
         model.addAttribute("producerPage", producerPage);
         model.addAttribute("producers", producerPage.getContent());

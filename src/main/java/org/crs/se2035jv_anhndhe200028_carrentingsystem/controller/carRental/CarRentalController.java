@@ -71,7 +71,6 @@ public class CarRentalController {
     //history
     @GetMapping("/history")
     public String viewHistory(@RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "10") int size,
                               @ModelAttribute("searchHistoryDTO") SearchHistoryRequest searchHistoryRequest,
                               HttpSession session, Model model) {
         Customer customer = (Customer) session.getAttribute("customer");
@@ -79,12 +78,9 @@ public class CarRentalController {
             return "redirect:/auth/signin";
         }
 
-        int safePage = Math.max(page, 0);
-        int safeSize = Math.min(Math.max(size, 1), 20);
-
         Pageable pageable = PageRequest.of(
-                safePage,
-                safeSize,
+                Math.max(page, 0),
+                10,
                 Sort.by("carRenID").descending()
         );
 

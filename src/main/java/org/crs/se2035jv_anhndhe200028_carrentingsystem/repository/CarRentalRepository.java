@@ -13,22 +13,25 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 
 public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
     Page<CarRental> findAllByCustomer(Customer customer, Pageable pageable);
 
-    List<CarRental> findAllByCustomer(Customer customer);
+    Optional<CarRental> findAllByCustomer(Customer customer);
 
-    List<CarRental> findAllByCar(Car car);
+    Optional<CarRental> findAllByCar(Car car);
 
-    List<CarRental> findAllByCarIn(List<Car> cars);
+    Optional<CarRental> findAllByCarIn(List<Car> cars);
 
-    Page<CarRental> findByCustomerAndStatus(Customer customer, String status, Pageable pageable);
+    Page<CarRental> findByCustomerAndStatus(Customer customer, RentalStatus status, Pageable pageable);
 
-    boolean existsByCustomerAndCarAndStatus(Customer customer, Car car, String status);
+    boolean existsByCustomerAndCarAndStatus(Customer customer, Car car, RentalStatus status);
 
     @Modifying
-    @Query("UPDATE CarRental cr SET cr.status = :newStatus WHERE cr.status = :oldStatus")
+    @Query(value = "UPDATE CarRental SET Status = :newStatus WHERE Status = :oldStatus", nativeQuery = true)
     int replaceStatus(@Param("oldStatus") String oldStatus, @Param("newStatus") String newStatus);
 
     @Query(value = "SELECT cr.carRenID AS carRenID, ct.fullName AS fullName, c.carName AS carName, " +
@@ -110,7 +113,7 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
               AND (:returnDate IS NULL OR cr.returnDate <= :returnDate)
               AND (:status IS NULL OR cr.status = :status)
             """)
-    List<Object[]> findCarRentalReportStats(@Param("pickupDate") LocalDate pickupDate,
+    Optional<Object[]> findCarRentalReportStats(@Param("pickupDate") LocalDate pickupDate,
                                             @Param("returnDate") LocalDate returnDate,
                                             @Param("fullName") String fullName,
                                             @Param("carName") String carName,

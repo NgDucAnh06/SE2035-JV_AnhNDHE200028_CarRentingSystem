@@ -31,7 +31,7 @@ public class CarProducerServiceImpl implements CarProducerService {
 
     @Override
     public void save(CarProducer carProducer) {
-        if (carProducerRepository.findByProducerName(carProducer.getProducerName()) != null) {
+        if (carProducerRepository.findByProducerName(carProducer.getProducerName()).isPresent()) {
             throw new DuplicateResourceException("Producer name already exists!");
         }
         carProducerRepository.save(carProducer);
@@ -39,21 +39,22 @@ public class CarProducerServiceImpl implements CarProducerService {
 
     @Override
     public void update(CarProducer carProducer) {
-        CarProducer producer = carProducerRepository.findByProducerName(carProducer.getProducerName());
-        if (producer != null && !producer.getProducerID().equals(carProducer.getProducerID())) {
-            throw new DuplicateResourceException("Producer name already exists!");
-        }
+        carProducerRepository.findByProducerName(carProducer.getProducerName())
+                .filter(existing -> !existing.getProducerID().equals(carProducer.getProducerID()))
+                .ifPresent(existing -> {
+                    throw new DuplicateResourceException("Producer name already exists!");
+                });
         carProducerRepository.save(carProducer);
     }
 
     @Override
     public CarProducer findByProducerName(String producerName) {
-        return carProducerRepository.findByProducerName(producerName);
+        return carProducerRepository.findByProducerName(producerName).orElse(null);
     }
 
     @Override
     public CarProducer findByProducerID(Integer id) {
-        return carProducerRepository.findByProducerID(id);
+        return carProducerRepository.findByProducerID(id).orElse(null);
     }
 
     @Override
@@ -72,10 +73,14 @@ public class CarProducerServiceImpl implements CarProducerService {
     public void deleteProducer(Integer id) {
         CarProducer producer = carProducerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Producer not found."));
-        List<Car> cars = carRepository.findAllByProducer(producer);
+        List<Car> cars = carRepository.findAllByProducer(producer)
+                .map(List::of)
+                .orElse(List.of());
         List<CarRental> rentals = cars.isEmpty()
                 ? List.of()
-                : carRentalRepository.findAllByCarIn(cars);
+                : carRentalRepository.findAllByCarIn(cars)
+                        .map(List::of)
+                        .orElse(List.of());
 
         if (rentals.stream().anyMatch(this::isActiveRental)) {
             throw new IllegalStateException(
@@ -84,8 +89,10 @@ public class CarProducerServiceImpl implements CarProducerService {
         }
 
         if (!rentals.isEmpty()) {
-            reviewRepository.deleteAll(reviewRepository.findByCarRentalIn(rentals));
-            reviewRepository.flush();
+            reviewRepository.findByCarRentalIn(rentals).ifPresent(review -> {
+                reviewRepository.delete(review);
+                reviewRepository.flush();
+            });
             carRentalRepository.deleteAll(rentals);
             carRentalRepository.flush();
         }
@@ -98,7 +105,7 @@ public class CarProducerServiceImpl implements CarProducerService {
     }
 
     private boolean isActiveRental(CarRental rental) {
-        return RentalStatus.WAITING_FOR_PICKUP.name().equals(rental.getStatus())
-                || RentalStatus.RENTING.name().equals(rental.getStatus());
+        return rental.getStatus() == RentalStatus.WAITING_FOR_PICKUP
+                || rental.getStatus() == RentalStatus.RENTING;
     }
 }
