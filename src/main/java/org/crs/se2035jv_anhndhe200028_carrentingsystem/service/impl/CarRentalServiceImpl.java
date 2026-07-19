@@ -50,10 +50,7 @@ public class CarRentalServiceImpl implements CarRentalService {
 
     @Override
     public Page<CarRental> showHistoryByCustomer(Customer customer, Pageable pageable, SearchHistoryRequest searchHistoryRequest) {
-        String status = searchHistoryRequest.getStatus();
-        if (status != null && status.trim().isEmpty()) {
-            status = null;
-        }
+        RentalStatus status = parseRentalStatus(searchHistoryRequest.getStatus());
         return carRentalRepository.findCarRentalHistory(
                 customer.getCustomerID(),
                 searchHistoryRequest.getCarName(),
@@ -95,7 +92,7 @@ public class CarRentalServiceImpl implements CarRentalService {
     @Transactional(readOnly = true)
     public Page<RentalSummaryDTO> showManagement(SearchHistoryRequest searchRequest, Pageable pageable) {
         String carName = normalizeFilter(searchRequest.getCarName());
-        String status = normalizeFilter(searchRequest.getStatus());
+        RentalStatus status = parseRentalStatus(searchRequest.getStatus());
         return carRentalRepository.findCarRentalManagement(
                 carName,
                 searchRequest.getFromDate(),
@@ -110,6 +107,17 @@ public class CarRentalServiceImpl implements CarRentalService {
             return null;
         }
         return value.trim();
+    }
+
+    private RentalStatus parseRentalStatus(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return RentalStatus.valueOf(value.trim());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Override
@@ -168,7 +176,7 @@ public class CarRentalServiceImpl implements CarRentalService {
                 searchReportDTO.getReturnDate(),
                 normalizeFilter(searchReportDTO.getFullName()),
                 normalizeFilter(searchReportDTO.getCarName()),
-                normalizeFilter(searchReportDTO.getStatus()),
+                parseRentalStatus(searchReportDTO.getStatus()),
                 pageable
         );
     }
@@ -181,7 +189,7 @@ public class CarRentalServiceImpl implements CarRentalService {
                 searchReportDTO.getReturnDate(),
                 normalizeFilter(searchReportDTO.getFullName()),
                 normalizeFilter(searchReportDTO.getCarName()),
-                normalizeFilter(searchReportDTO.getStatus())
+                parseRentalStatus(searchReportDTO.getStatus())
         ).orElse(new Object[0]);
 
         return new RentalReportStatsDTO(

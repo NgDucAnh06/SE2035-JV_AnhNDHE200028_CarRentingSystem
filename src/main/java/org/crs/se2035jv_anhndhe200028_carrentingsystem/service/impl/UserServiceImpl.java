@@ -10,6 +10,7 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Account;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Customer;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Review;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.CarStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.exception.BadCredentialsException;
@@ -171,9 +172,7 @@ public class UserServiceImpl implements UserService {
 
         Customer customer = account.getCustomer();
         if (customer != null) {
-            List<CarRental> rentals = carRentalRepository.findAllByCustomer(customer)
-                    .map(List::of)
-                    .orElse(List.of());
+            List<CarRental> rentals = carRentalRepository.findAllByCustomer(customer);
 
             for (CarRental rental : rentals) {
                 if (isCarHeldByRental(rental.getStatus()) && rental.getCar() != null) {
@@ -184,10 +183,11 @@ public class UserServiceImpl implements UserService {
             }
 
             if (!rentals.isEmpty()) {
-                reviewRepository.findByCarRentalIn(rentals).ifPresent(review -> {
-                    reviewRepository.delete(review);
+                List<Review> reviews = reviewRepository.findByCarRentalIn(rentals);
+                if (!reviews.isEmpty()) {
+                    reviewRepository.deleteAll(reviews);
                     reviewRepository.flush();
-                });
+                }
                 carRentalRepository.deleteAll(rentals);
                 carRentalRepository.flush();
             }

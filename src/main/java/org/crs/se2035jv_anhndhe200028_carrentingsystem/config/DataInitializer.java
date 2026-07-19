@@ -44,7 +44,7 @@ public class DataInitializer implements CommandLineRunner {
         carRentalRepository.replaceStatus("ACTIVE", RentalStatus.WAITING_FOR_PICKUP.name());
 
         // Initialize admin account
-        if (accountRepository.findByAccountName("admin") == null) {
+        if (accountRepository.findByAccountName("admin").isEmpty()) {
             Account admin = Account.builder()
                     .accountName("admin")
                     .password("admin")
@@ -55,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         // Initialize test user account
-        Account testUser = accountRepository.findByAccountName("test");
+        Account testUser = accountRepository.findByAccountName("test").orElse(null);
         if (testUser == null) {
             testUser = Account.builder()
                     .accountName("test")
@@ -118,7 +118,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Map<String, CarProducer> producers = new LinkedHashMap<>();
         for (ProducerSeed seed : seeds) {
-            CarProducer producer = carProducerRepository.findByProducerName(seed.name());
+            CarProducer producer = carProducerRepository.findByProducerName(seed.name()).orElse(null);
             if (producer == null) {
                 producer = carProducerRepository.save(CarProducer.builder()
                         .producerName(seed.name())
@@ -158,7 +158,7 @@ public class DataInitializer implements CommandLineRunner {
         List<Car> cars = new ArrayList<>();
         for (int index = 0; index < seeds.size(); index++) {
             CarSeed seed = seeds.get(index);
-            Car car = carRepository.findByCarName(seed.name());
+            Car car = carRepository.findByCarName(seed.name()).orElse(null);
             if (car == null) {
                 car = carRepository.save(Car.builder()
                         .carName(seed.name())

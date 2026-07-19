@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarProducer;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Review;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarProducerRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
@@ -73,14 +74,10 @@ public class CarProducerServiceImpl implements CarProducerService {
     public void deleteProducer(Integer id) {
         CarProducer producer = carProducerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Producer not found."));
-        List<Car> cars = carRepository.findAllByProducer(producer)
-                .map(List::of)
-                .orElse(List.of());
+        List<Car> cars = carRepository.findAllByProducer(producer);
         List<CarRental> rentals = cars.isEmpty()
                 ? List.of()
-                : carRentalRepository.findAllByCarIn(cars)
-                        .map(List::of)
-                        .orElse(List.of());
+                : carRentalRepository.findAllByCarIn(cars);
 
         if (rentals.stream().anyMatch(this::isActiveRental)) {
             throw new IllegalStateException(
@@ -89,10 +86,11 @@ public class CarProducerServiceImpl implements CarProducerService {
         }
 
         if (!rentals.isEmpty()) {
-            reviewRepository.findByCarRentalIn(rentals).ifPresent(review -> {
-                reviewRepository.delete(review);
+            List<Review> reviews = reviewRepository.findByCarRentalIn(rentals);
+            if (!reviews.isEmpty()) {
+                reviewRepository.deleteAll(reviews);
                 reviewRepository.flush();
-            });
+            }
             carRentalRepository.deleteAll(rentals);
             carRentalRepository.flush();
         }

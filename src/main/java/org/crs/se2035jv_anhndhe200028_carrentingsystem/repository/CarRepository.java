@@ -15,9 +15,9 @@ import java.util.Optional;
 public interface CarRepository extends JpaRepository<Car, Integer> {
     Optional<Car> findByCarName(String carName);
 
-    Optional<Car> findByStatus(CarStatus status);
+    List<Car> findByStatus(CarStatus status);
 
-    Optional<Car> findAllByProducer(CarProducer producer);
+    List<Car> findAllByProducer(CarProducer producer);
 
     Page<Car> findByCarNameContainingIgnoreCase(String keyword, Pageable pageable);
 

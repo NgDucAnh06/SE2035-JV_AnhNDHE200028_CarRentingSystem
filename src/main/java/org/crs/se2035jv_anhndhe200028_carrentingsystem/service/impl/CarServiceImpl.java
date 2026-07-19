@@ -3,6 +3,8 @@ package org.crs.se2035jv_anhndhe200028_carrentingsystem.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Car;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.CarRental;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.entity.Review;
+import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.CarStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRentalRepository;
 import org.crs.se2035jv_anhndhe200028_carrentingsystem.repository.CarRepository;
@@ -51,14 +53,12 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public Car findByCarName(String carName) {
-        return carRepository.findByCarName(carName);
+        return carRepository.findByCarName(carName).orElse(null);
     }
 
     @Override
     public List<Car> findAvailableCars() {
-        return carRepository.findByStatus(CarStatus.AVAILABLE)
-                .map(List::of)
-                .orElse(List.of());
+        return carRepository.findByStatus(CarStatus.AVAILABLE);
     }
 
     @Override
@@ -84,9 +84,7 @@ public class CarServiceImpl implements CarService {
     public void deleteCar(Integer id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Car not found."));
-        List<CarRental> rentals = carRentalRepository.findAllByCar(car)
-                .map(List::of)
-                .orElse(List.of());
+        List<CarRental> rentals = carRentalRepository.findAllByCar(car);
 
         if (rentals.stream().anyMatch(this::isActiveRental)) {
             throw new IllegalStateException(
@@ -107,10 +105,11 @@ public class CarServiceImpl implements CarService {
         if (rentals.isEmpty()) {
             return;
         }
-        reviewRepository.findByCarRentalIn(rentals).ifPresent(review -> {
-            reviewRepository.delete(review);
+        List<Review> reviews = reviewRepository.findByCarRentalIn(rentals);
+        if (!reviews.isEmpty()) {
+            reviewRepository.deleteAll(reviews);
             reviewRepository.flush();
-        });
+        }
         carRentalRepository.deleteAll(rentals);
         carRentalRepository.flush();
     }

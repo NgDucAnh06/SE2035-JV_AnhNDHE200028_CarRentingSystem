@@ -20,11 +20,11 @@ import org.crs.se2035jv_anhndhe200028_carrentingsystem.enums.RentalStatus;
 public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
     Page<CarRental> findAllByCustomer(Customer customer, Pageable pageable);
 
-    Optional<CarRental> findAllByCustomer(Customer customer);
+    List<CarRental> findAllByCustomer(Customer customer);
 
-    Optional<CarRental> findAllByCar(Car car);
+    List<CarRental> findAllByCar(Car car);
 
-    Optional<CarRental> findAllByCarIn(List<Car> cars);
+    List<CarRental> findAllByCarIn(List<Car> cars);
 
     Page<CarRental> findByCustomerAndStatus(Customer customer, RentalStatus status, Pageable pageable);
 
@@ -44,7 +44,7 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
             "       OR LOWER(c.carName) LIKE LOWER(CONCAT('%', :carName, '%'))) " +
             "AND (:fromDate IS NULL OR cr.pickupDate >= :fromDate) " +
             "AND (:toDate IS NULL OR cr.returnDate <= :toDate) " +
-            "AND (:status IS NULL OR :status = '' OR cr.status = :status) " +
+            "AND (:status IS NULL OR cr.status = :status) " +
             "ORDER BY cr.carRenID DESC",
             countQuery = "SELECT COUNT(cr) FROM CarRental cr " +
                     "JOIN cr.customer ct " +
@@ -53,11 +53,11 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
                     "       OR LOWER(c.carName) LIKE LOWER(CONCAT('%', :carName, '%'))) " +
                     "AND (:fromDate IS NULL OR cr.pickupDate >= :fromDate) " +
                     "AND (:toDate IS NULL OR cr.returnDate <= :toDate) " +
-                    "AND (:status IS NULL OR :status = '' OR cr.status = :status)")
+                    "AND (:status IS NULL OR cr.status = :status)")
     Page<RentalSummaryDTO> findCarRentalManagement(@Param("carName") String carName,
                                                     @Param("fromDate") LocalDate fromDate,
                                                     @Param("toDate") LocalDate toDate,
-                                                    @Param("status") String status,
+                                                    @Param("status") RentalStatus status,
                                                     Pageable pageable);
 
     @Query(value = """
@@ -93,7 +93,7 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
                                                @Param("returnDate") LocalDate returnDate,
                                                @Param("fullName") String fullName,
                                                @Param("carName") String carName,
-                                               @Param("status") String status,
+                                               @Param("status") RentalStatus status,
                                                Pageable pageable);
 
     @Query("""
@@ -117,7 +117,7 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
                                             @Param("returnDate") LocalDate returnDate,
                                             @Param("fullName") String fullName,
                                             @Param("carName") String carName,
-                                            @Param("status") String status);
+                                            @Param("status") RentalStatus status);
 
     @Query("SELECT cr FROM CarRental cr WHERE cr.customer.customerID = :customerId " +
            "AND (:carName IS NULL OR cr.car.carName LIKE %:carName%) " +
@@ -128,6 +128,6 @@ public interface CarRentalRepository extends JpaRepository<CarRental, Integer> {
                                          @Param("carName") String carName,
                                          @Param("pickupDate") LocalDate pickupDate,
                                          @Param("returnDate") LocalDate returnDate,
-                                         @Param("status") String status,
+                                         @Param("status") RentalStatus status,
                                          Pageable pageable);
 }

@@ -51,8 +51,9 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         return reviewRepository.findByCarRentalIn(rentals)
-                .map(review -> List.of(review.getCarRental().getCarRenID()))
-                .orElse(Collections.emptyList());
+                .stream()
+                .map(review -> review.getCarRental().getCarRenID())
+                .toList();
     }
 
     @Override
