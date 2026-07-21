@@ -16,7 +16,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class HomeController {
     private final CarService carService;
 
-    @GetMapping({"/", "/home"})
+    @GetMapping("/")
+    public String index() {
+        return "redirect:/auth/signin";
+    }
+
+    @GetMapping("/home")
     public String home(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "") String keyword,
                        HttpSession session, Model model) {
